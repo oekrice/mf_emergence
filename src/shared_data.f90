@@ -99,6 +99,10 @@ MODULE shared_data
     INTEGER :: b0_chunk
     !Extras
     REAL(num), DIMENSION(:,:), ALLOCATABLE:: bz_surf_reference
+    INTEGER:: nmags
+    REAL(num), DIMENSION(:,:), ALLOCATABLE:: surf_vx, surf_vy, surf_vz
+
+
 !*******************************************************************************
 END MODULE shared_data
 !*******************************************************************************

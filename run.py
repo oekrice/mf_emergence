@@ -29,17 +29,18 @@ else:
 #DYNAMIC SYSTEM PARAMETERS
 #-------------------------------------
 voutfact = 0.2
-shearfact = 3.7e-5
+shearfact = 3.7e-5   #factor by which to change the imported 'speed'
 eta0 = 0.0
 
-tmax = 1500.0
+tmax = 250.0
 
-nx = 64
-ny = 64
-nz = 64
+nx = 128
+ny = 128
+nz = 128
 
 nplots = 100
-ndiags = 750
+ndiags = 100
+nmags = 500*tmax/250.0 #Number of magnetograms used.
 
 nu0 = 0.5
 eta = 5e-4*nu0
@@ -50,7 +51,7 @@ z0 = -0.0; z1 = 24.0
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
-decay_type = 3  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
+decay_type = 0  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
 
 if decay_type == 0: #No pressure
     zstar = 0.0; a = 0.0; b = 0.0; deltaz = 0.0
@@ -161,6 +162,9 @@ variables[23] = decay_type
 #Background field angle (degrees from vertical)
 variables[24] = backfield_angle
 
+#Number of imported magnetograms
+variables[25] = nmags
+
 #SOME FOLDER ADMIN
 #-------------------------------------
 
@@ -210,9 +214,9 @@ if True:
     grid= Grid()
     init = compute_initial_condition(grid, lbound_pariat, run, background_strength = 1.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
-    bx = init.bx; by = init.by; bz = init.bz
+    bx = 0.005; by = 0.0; bz = 0.0
 
-    vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])
+    #vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])
 
     if False:
         plt.pcolormesh(grid.xs,grid.ys,bz[1:-1,1:-1,0].T,cmap='plasma')

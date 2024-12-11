@@ -8,6 +8,7 @@ MODULE evolve
     USE mpi_tools
     USE boundary
     USE pressure
+    USE netcdf
 
     !USE output
     IMPLICIT NONE
@@ -130,21 +131,9 @@ SUBROUTINE add_boundary_flows()
     real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
 
     if (z_down < 0 .and. shearfact > 1d-6) then
-    br = 13.0_num; bl = 0.1_num; kb = 15.0_num
 
-      bzdy = (bz_surf_reference(0:nx+1,1:ny+1) - bz_surf_reference(0:nx+1,0:ny)) / dy
-      bzdx = (bz_surf_reference(1:nx+1,0:ny+1) - bz_surf_reference(0:nx,0:ny+1)) / dx
 
-      bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
-      bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
-
-      fact = (kb*(br-bl))/(bz_surf_reference(0:nx+1,0:ny+1) + 1d-10)*tanh(kb*(bz_surf_reference(0:nx+1,0:ny+1)- bl)/(br-bl+1d-10))
-      fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
-
-      vx_surf(0:nx, 0:ny) = -fact0*bzdy0
-      vy_surf(0:nx, 0:ny) = fact0*bzdx0
-
-      vx(0:nx,0:ny,0) = shearfact*vx_surf
+      vx(0:nx,0:ny,0) = shearfact*surf_vx(0:nx,0:ny)
       vy(0:nx,0:ny,0) = shearfact*vy_surf
 
     end if
@@ -202,7 +191,50 @@ SUBROUTINE calculate_electric()
 
 END SUBROUTINE calculate_electric
 
+SUBROUTINE update_surface_flows(flow_number)
 
+    !Imports the velocity field from the imported DAVE magnetogram
+    IMPLICIT NONE
+
+    INTEGER:: flow_number
+
+    CHARACTER(LEN =64):: velocity_filename
+    CHARACTER(LEN = 4):: flow_id
+    INTEGER:: ncid, vid
+
+    write (flow_id,'(I4.4)') flow_number
+    velocity_filename = trim("./magnetograms/velocity"//trim(flow_id)//'.nc')
+
+    call try(nf90_open(trim(velocity_filename), nf90_nowrite, ncid))
+
+    call try(nf90_inq_varid(ncid, 'vx', vid))
+    call try(nf90_get_var(ncid, vid, surf_vx(1:nx,1:ny), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+
+    call try(nf90_inq_varid(ncid, 'vy', vid))
+    call try(nf90_get_var(ncid, vid, surf_vy(1:nx,1:ny), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+
+    call try(nf90_inq_varid(ncid, 'vz', vid))
+    call try(nf90_get_var(ncid, vid, surf_vz(1:nx,1:ny), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+
+    call try(nf90_close(ncid))
+
+    if (proc_num == 0) print*, 'Surface velocity loaded, fname: ', velocity_filename
+
+END SUBROUTINE update_surface_flows
+
+subroutine try(status)
+    ! Catch error in reading netcdf fild.
+    INTEGER, INTENT(IN):: status
+
+    if (status /= NF90_noerr) THEN
+        PRINT*,TRIM(ADJUSTL(NF90_STRERROR(status)))
+        call mpi_abort(comm, ierr)
+    end if
+
+end subroutine try
 
 
 

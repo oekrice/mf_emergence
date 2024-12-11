@@ -50,7 +50,7 @@ END SUBROUTINE initialise
 
 SUBROUTINE read_parameters()
     !Reads in the parameters from the text file variables.txt
-    REAL(num), DIMENSION(30):: variables
+    REAL(num), DIMENSION(30):: variables(0:29)
     CHARACTER(LEN=64):: input_value
 
     CHARACTER(LEN=64):: parameter_filename
@@ -69,35 +69,37 @@ SUBROUTINE read_parameters()
     READ(1, *) variables
     CLOSE(1)
 
-    run_number = variables(1)
-    nx_global = int(variables(2))
-    ny_global = int(variables(3))
-    nz_global = int(variables(4))
-    tmax = variables(5)
+    run_number = variables(0)
+    nx_global = int(variables(1))
+    ny_global = int(variables(2))
+    nz_global = int(variables(3))
+    tmax = variables(4)
 
-    nplots = int(variables(6))
-    ndiags = int(variables(7))
+    nplots = int(variables(5))
+    ndiags = int(variables(6))
 
-    voutfact = variables(8)
-    shearfact = variables(9)
-    eta = variables(10)
-    nu0 = variables(11)
-    eta0 = variables(12)
+    voutfact = variables(7)
+    shearfact = variables(8)
+    eta = variables(9)
+    nu0 = variables(10)
+    eta0 = variables(11)
 
-    x0_global = variables(13)
-    x1_global = variables(14)
-    y0_global = variables(15)
-    y1_global = variables(16)
-    z0_global = variables(17)
-    z1_global = variables(18)
+    x0_global = variables(12)
+    x1_global = variables(13)
+    y0_global = variables(14)
+    y1_global = variables(15)
+    z0_global = variables(16)
+    z1_global = variables(17)
 
-    a = variables(19)
-    b = variables(20)
-    deltaz = variables(21)
-    zstar = variables(22)
+    a = variables(18)
+    b = variables(19)
+    deltaz = variables(20)
+    zstar = variables(21)
 
-    hamilton_flag = int(variables(23))
-    decay_type = int(variables(24))
+    hamilton_flag = int(variables(22))
+    decay_type = int(variables(23))
+
+    nmags = int(variables(25))
 
 END SUBROUTINE read_parameters
 
@@ -105,15 +107,6 @@ SUBROUTINE allocate_arrays()
     ! - Estalish the grid (not particularly difficult for a cartesian box). Try to use the same numbering system as LARE.
     ! - index 0 is always the cell on the boundary, or just OUTSIDE it. c cells are numbered from -1, s cells from -2
     ! - Arrays are local unless otherwise declared. Not sure if any global arrays are required, but perhaps
-
-    !x0 = x0_global + x_rank*(x1_global-x0_global)/x_procs
-    !x1 = x0_global + (x_rank + 1)*(x1_global-x0_global)/x_procs
-
-    !y0 = y0_global + (y_rank)*(y1_global-y0_global)/y_procs
-    !y1 = y0_global + (y_rank + 1)*(y1_global-y0_global)/y_procs
-
-    !z0 = z0_global + z_rank*(z1_global-z0_global)/z_procs
-    !z1 = z0_global + (z_rank + 1)*(z1_global-z0_global)/z_procs
 
     allocate(xs(-1:nx+1)); allocate(ys(-1:ny+1)); allocate(zs(-1:nz+1))
     allocate(xc(0:nx+1)); allocate(yc(0:ny+1)); allocate(zc(0:nz+1))
@@ -142,6 +135,7 @@ SUBROUTINE allocate_arrays()
     allocate(jpx(0:nx+1,-1:ny+1,-1:nz+1)); allocate(jpy(-1:nx+1,0:ny+1,-1:nz+1))
     allocate(jpx1(0:nx,0:ny,0:nz)); allocate(jpy1(0:nx,0:ny,0:nz))
 
+    allocate(surf_vx(0:nx,0:ny)); allocate(surf_vy(0:nx,0:ny)); allocate(surf_vz(0:nx,0:ny))
 
     bx = 0.0_num; by = 0.0_num; bz = 0.0_num
 

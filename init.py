@@ -38,60 +38,17 @@ class compute_initial_condition():
         self.dy = np.sum(self.ys[1:] - self.ys[:-1])/len(self.ys[1:])
         self.dz = np.sum(self.zs[1:] - self.zs[:-1])/len(self.zs[1:])
 
-        self.lbound = lbound_fn(self.xc[1:-1],self.yc[1:-1])
-
-        if False:
-            plt.pcolormesh(self.xs,self.ys,self.lbound.T)
-            plt.colorbar()
-
-            plt.show()
-
-        self.lbound_transform = np.zeros((self.nx,self.ny))
-
-        self.xbasis = np.zeros((self.nx, self.nx+2))
-        self.ybasis = np.zeros((self.ny, self.ny+2))
-
         self.init_filename = init_filename
-        #find eigenvalues and basis vectors (eigenvalues are m^2 and numbered k)
-        #-----------------------------------------
-        print('Calculating horizontal basis functions...')
-        self.m2, self.n2, self.xbasis[:,1:-1], self.ybasis[:,1:-1] = self.find_eigenstuff()
 
-        self.xbasis[:,0] = self.xbasis[:,1]; self.xbasis[:,-1] = self.xbasis[:,-2]
-        self.ybasis[:,0] = self.ybasis[:,1]; self.ybasis[:,-1] = self.ybasis[:,-2]
+        print('Initialising with horizontal background field')
 
-        print('Basis functions calculated.')
-
-        print('Starting "Fourier" Transform')
-        error = 1e6
-        self.phi = np.zeros((self.nx+2, self.ny+2,self.nz+2))
-        self.test1 = np.zeros((self.nx+2))
-        for k_c in range(self.nx+self.ny):
-            for k1 in range(self.nx):
-                k2 = k_c-k1
-                if k2 >= self.ny or k2 < 0:
-                    continue
-                if error < boundary_error_limit:
-                    break
-
-                self.lbound_transform[k1,k2] = self.coeff(self.lbound, k1,k2)
-                if abs(self.lbound_transform[k1,k2]) < 1e-10:
-                    continue
-                zbasis = self.find_zbasis(self.m2[k1],self.n2[k2])
-                self.phi = self.phi + self.lbound_transform[k1,k2]*self.xbasis[k1,:][:,np.newaxis,np.newaxis]*self.ybasis[k2,:][np.newaxis,:,np.newaxis]*zbasis[np.newaxis,np.newaxis,:]
-                self.test1 = self.test1 + self.lbound_transform[k1,k2]*self.xbasis[k1,:]*self.ybasis[k2,0]
-                lbound_test = (self.phi[1:-1,1:-1,1] - self.phi[1:-1,1:-1,0])/self.dz
-                error = np.sqrt(np.sum((lbound_test - self.lbound)**2)/(self.nx*self.ny))
-                #print(error,k1,k2)
-
-        print('Fourier transform finished, calculating magnetic field...')
         self.bx = np.zeros((self.nx+1,self.ny+2,self.nz+2))
         self.by = np.zeros((self.nx+2,self.ny+1,self.nz+2))
         self.bz = np.zeros((self.nx+2,self.ny+2,self.nz+1))
 
-        self.bx[:,1:-1,1:-1] = (self.phi[1:,1:-1,1:-1] - self.phi[:-1,1:-1,1:-1])/self.dx
-        self.by[1:-1,:,1:-1] = (self.phi[1:-1,1:,1:-1] - self.phi[1:-1,:-1,1:-1])/self.dy
-        self.bz[1:-1,1:-1,:] = (self.phi[1:-1,1:-1,1:] - self.phi[1:-1,1:-1,:-1])/self.dz
+        self.bx[:,1:-1,1:-1] = 0.005
+        self.by[1:-1,:,1:-1] = 0.0
+        self.bz[1:-1,1:-1,:] = 0.0
 
         #Jx Conditions
         self.by[:,:,0] = self.by[:,:,1] - self.dz*(self.bz[:,1:,0] - self.bz[:,:-1,0])/self.dy
@@ -120,8 +77,6 @@ class compute_initial_condition():
 
         print('')
         print('Potential Field Calculated')
-
-        self.test_phi()
 
         self.find_vector_potentials()
 
