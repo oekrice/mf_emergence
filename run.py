@@ -29,14 +29,14 @@ else:
 #DYNAMIC SYSTEM PARAMETERS
 #-------------------------------------
 voutfact = 0.2
-shearfact = 3.7e-5   #factor by which to change the imported 'speed'
+shearfact = 1.0#3.7e-5   #factor by which to change the imported 'speed'
 eta0 = 0.0
 
 tmax = 250.0
 
-nx = 128
-ny = 128
-nz = 128
+nx = 64
+ny = 64
+nz = 64
 
 nplots = 100
 ndiags = 100

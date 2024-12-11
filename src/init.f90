@@ -101,6 +101,8 @@ SUBROUTINE read_parameters()
 
     nmags = int(variables(25))
 
+    print*, variables
+
 END SUBROUTINE read_parameters
 
 SUBROUTINE allocate_arrays()

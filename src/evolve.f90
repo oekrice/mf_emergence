@@ -125,16 +125,12 @@ SUBROUTINE add_boundary_flows()
 
     !Adds twisting directly onto the electric field. Only affects ez (for the jet model, at least)
     IMPLICIT NONE
-    real(num):: br, bl, kb    !Parameters for the boundary motions (taken from Pariat)
-    real(num), dimension(:,:):: bzdy(0:nx+1,0:ny), bzdx(0:nx,0:ny+1)
-    real(num), dimension(:,:):: bzdy0(0:nx,0:ny), bzdx0(0:nx,0:ny)
-    real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
 
     if (z_down < 0 .and. shearfact > 1d-6) then
 
-
       vx(0:nx,0:ny,0) = shearfact*surf_vx(0:nx,0:ny)
-      vy(0:nx,0:ny,0) = shearfact*vy_surf
+      vy(0:nx,0:ny,0) = shearfact*surf_vy(0:nx,0:ny)
+      vz(0:nx,0:ny,0) = shearfact*surf_vz(0:nx,0:ny)
 
     end if
 
@@ -205,23 +201,40 @@ SUBROUTINE update_surface_flows(flow_number)
     write (flow_id,'(I4.4)') flow_number
     velocity_filename = trim("./magnetograms/velocity"//trim(flow_id)//'.nc')
 
-    call try(nf90_open(trim(velocity_filename), nf90_nowrite, ncid))
+!     call try(nf90_open(trim(velocity_filename), nf90_nowrite, ncid))
+!
+!     call try(nf90_inq_varid(ncid, 'vx', vid))
+!     call try(nf90_get_var(ncid, vid, surf_vx(0:nx,0:ny), &
+!     start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+1/)))
+!
+!     call try(nf90_inq_varid(ncid, 'vy', vid))
+!     call try(nf90_get_var(ncid, vid, surf_vy(0:nx,0:ny), &
+!     start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+1/)))
+!
+!     call try(nf90_inq_varid(ncid, 'vz', vid))
+!     call try(nf90_get_var(ncid, vid, surf_vz(0:nx,0:ny), &
+!     start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+1/)))
+!
+!     if (proc_num == 0) print*, 'Surface velocity loaded, fname: ', velocity_filename
 
-    call try(nf90_inq_varid(ncid, 'vx', vid))
-    call try(nf90_get_var(ncid, vid, surf_vx(1:nx,1:ny), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+    !call try(nf90_inq_varid(ncid, 'bx', vid))
+    !call try(nf90_get_var(ncid, vid, bx(0:nx,1:ny,0), &
+    !start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny/)))
 
-    call try(nf90_inq_varid(ncid, 'vy', vid))
-    call try(nf90_get_var(ncid, vid, surf_vy(1:nx,1:ny), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+    !call try(nf90_inq_varid(ncid, 'by', vid))
+    !call try(nf90_get_var(ncid, vid, by(1:nx,0:ny,0), &
+    !start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny+1/)))
 
-    call try(nf90_inq_varid(ncid, 'vz', vid))
-    call try(nf90_get_var(ncid, vid, surf_vz(1:nx,1:ny), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+    !call try(nf90_inq_varid(ncid, 'bz', vid))
+    !call try(nf90_get_var(ncid, vid, bz(1:nx,1:ny,0), &
+    !start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
 
-    call try(nf90_close(ncid))
+    if (proc_num == 0) print*, 'Surface magnetic field loaded'
 
-    if (proc_num == 0) print*, 'Surface velocity loaded, fname: ', velocity_filename
+    !call try(nf90_close(ncid))
+
+
+
 
 END SUBROUTINE update_surface_flows
 
