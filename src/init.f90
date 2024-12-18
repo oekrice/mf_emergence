@@ -101,8 +101,6 @@ SUBROUTINE read_parameters()
 
     nmags = int(variables(25))
 
-    print*, variables
-
 END SUBROUTINE read_parameters
 
 SUBROUTINE allocate_arrays()
@@ -138,6 +136,7 @@ SUBROUTINE allocate_arrays()
     allocate(jpx1(0:nx,0:ny,0:nz)); allocate(jpy1(0:nx,0:ny,0:nz))
 
     allocate(surf_vx(0:nx,0:ny)); allocate(surf_vy(0:nx,0:ny)); allocate(surf_vz(0:nx,0:ny))
+    allocate(surf_ex(0:nx+1,-1:ny+1)); allocate(surf_ey(-1:nx+1,0:ny+1))
 
     bx = 0.0_num; by = 0.0_num; bz = 0.0_num
 

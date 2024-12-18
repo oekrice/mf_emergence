@@ -101,6 +101,7 @@ MODULE shared_data
     REAL(num), DIMENSION(:,:), ALLOCATABLE:: bz_surf_reference
     INTEGER:: nmags
     REAL(num), DIMENSION(:,:), ALLOCATABLE:: surf_vx, surf_vy, surf_vz
+    REAL(num), DIMENSION(:,:), ALLOCATABLE:: surf_ex, surf_ey
 
 
 !*******************************************************************************

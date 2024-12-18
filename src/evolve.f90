@@ -101,7 +101,7 @@ END SUBROUTINE b_to_gridpts
 SUBROUTINE calculate_velocity
     !Calculates the magnetofrictional velocity
     IMPLICIT NONE
-    b2 = bx1**2 + by1**2 + bz1**2!B squared
+    b2 = bx1**2 + by1**2 + bz1**2 !B squared
 
     nu(:,:,:) = nu0
 
@@ -182,10 +182,40 @@ SUBROUTINE calculate_electric()
     ex(1:nx,0:ny,0:nz) = ex(1:nx,0:ny,0:nz) + voutx(1:nx,0:ny,0:nz)*by(1:nx,0:ny,0:nz)
     ey(0:nx,1:ny,0:nz) = ey(0:nx,1:ny,0:nz) - vouty(0:nx,1:ny,0:nz)*bx(0:nx,1:ny,0:nz)
     end if
+    
+    !Add electric field loaded in from elsewhere
 
 
 
 END SUBROUTINE calculate_electric
+
+SUBROUTINE import_surface_electric(flow_number)
+
+    !Imports the velocity field from the imported DAVE magnetogram
+    IMPLICIT NONE
+
+    INTEGER:: flow_number
+
+    CHARACTER(LEN =64):: electric_filename
+    CHARACTER(LEN = 4):: flow_id
+    INTEGER:: ncid, vid
+
+    write (flow_id,'(I4.4)') flow_number
+    velocity_filename = trim("./electric/"//trim(flow_id)//'.nc')
+
+    call try(nf90_open(trim(velocity_filename), nf90_nowrite, ncid))
+
+    call try(nf90_inq_varid(ncid, 'ex', vid))
+    call try(nf90_get_var(ncid, vid, surf_ex(0:nx+1,0:ny)), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+2,ny+1/)))
+    
+    call try(nf90_inq_varid(ncid, 'ey', vid))
+    call try(nf90_get_var(ncid, vid, surf_ey(0:nx,0:ny+1)), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+2/)))
+
+    call try(nf90_close(ncid))
+
+END SUBROUTINE import_surface_electric
 
 SUBROUTINE update_surface_flows(flow_number)
 
@@ -229,7 +259,7 @@ SUBROUTINE update_surface_flows(flow_number)
     !call try(nf90_get_var(ncid, vid, bz(1:nx,1:ny,0), &
     !start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
 
-    if (proc_num == 0) print*, 'Surface magnetic field loaded'
+    !if (proc_num == 0) print*, 'Surface magnetic field loaded'
 
     !call try(nf90_close(ncid))
 
