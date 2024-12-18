@@ -187,6 +187,7 @@ SUBROUTINE calculate_electric()
     if (z_rank == 0) then
         ex(1:nx,0:ny,0) = ex_surf(1:nx,0:ny)
         ey(0:nx,1:ny,0) = ey_surf(0:nx,1:ny)
+        
     end if
 
 
