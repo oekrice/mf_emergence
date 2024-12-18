@@ -285,10 +285,10 @@ def generate_lbound(grid, offset = 0):
     """Generates the lower boundary function. To be normalised such that this is just the X basis"""
     sf = grid.x1/12.0
 
-    dipole_mag = 25.0; zstar = 1.0#2.*1.5/24.0
+    dipole_mag = 25.0; zstar = 2.*1.5/24.0
 
     lbound = 0.0*grid.xc[:,np.newaxis]*grid.yc[np.newaxis,:]
-    for ic, ix in enumerate(grid.xc[:]):
+    for ic, ix in enumerate(grid.xc[:] - offset):
         for jc, jy in enumerate(grid.yc[:]):
             lbound[ic,jc] = sf**3*dipole_mag*(2*(zstar)**2 - ((ix)**2 + (jy)**2))/(((ix)**2 + (jy)**2 + (zstar)**2)**2.5)
 
@@ -312,20 +312,13 @@ lbound1 = generate_lbound(grid, offset = 0.0)
 lbound2 = generate_lbound(grid, offset = 0.2) 
 
 C = lbound2 - lbound1    #Difference in the boundaries -- this is the important RHS bit
-#curl_x, curl_y = grid.curl_inplane(C)
 #Assume zero in-plane divergence for now, for E? Can add stuff easily later I hope. 
+bz_avg = 0.5*(lbound1 + lbound2)
 
 ft = FT(grid)
 G = ft.centre_transform(-C)
 e_x, e_y = grid.curl_inplane(G)
 curl_test = grid.curl_E(e_x, e_y)
-
-#e_x = ft.x_transform(-curl_x)
-#e_y = ft.y_transform(-curl_y)
-
-#lap_x = grid.lap_xribs(e_x)
-#lap_y = grid.lap_yribs(e_y)
-
 
 print('Curl test', np.max(np.abs(curl_test[1:-1,1:-1] + C[1:-1,1:-1])))
 #Determine the curl-free part of the electric field and remove it (for now -- can specify it later instead)
@@ -334,17 +327,27 @@ phi = ft.point_transform(-div_test)
 correct_x, correct_y = grid.grad(phi)
 e_x += correct_x
 e_y += correct_y
+#Electric field determined from that. Should then be machine. Create velocity field for the bottom? 
+# v = - (B x E)/B^2
+#Average to grid points
+ex1 = 0.5*(e_x[1:,:] + e_x[:-1,:])
+ey1 = 0.5*(e_y[:,1:] + e_y[:,:-1])
+
+#Ah. Need horizontal components. Don't have them... Could to with potential field.
+bz1 = 0.25*(bz_avg[1:,1:] + bz_avg[:-1,1:] + bz_avg[1:,:-1] + bz_avg[:-1,:-1])
+print(np.shape(ex1), np.shape(ey1))
+
+plt.pcolormesh(ey1)
+plt.show()
+
+
+
 div_test = grid.div_E(e_x, e_y)
 print('Div Test', np.max(np.abs(div_test[1:-1,1:-1])))
 
 curl_test = grid.curl_E(e_x, e_y)
 
 print('Overall', np.max(np.abs(curl_test[1:-1,1:-1] + C[1:-1,1:-1])))
-#print('xs', np.max(np.abs(lap_x[1:-1,1:-1]+curl_x[1:-1,1:-1])))
-#print('ys', np.max(np.abs(lap_y[1:-1,1:-1]+curl_y[1:-1,1:-1])))
-#ft.test_1d(grid)
-#ft.test_2d(grid, curl_x)
-#phi = ft.find_phi(grid,mode_cutoff=1e-10)
 
 
 

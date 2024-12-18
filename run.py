@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from init import compute_initial_condition
 from fltrace import trace_fieldlines
-
+from write_electric import compute_electrics
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
 else:
@@ -21,10 +21,16 @@ if len(sys.argv) > 2:
 else:
     nprocs = 1
 
-if os.uname()[1] == 'brillouin.dur.ac.uk':
+try:
+    if os.uname()[1] == 'brillouin.dur.ac.uk':
+        hflag = 0
+        winflag = 0
+    else:
+        hflag = 1
+        winflag = 0
+except:
     hflag = 0
-else:
-    hflag = 1
+    winflag = 1
 
 #DYNAMIC SYSTEM PARAMETERS
 #-------------------------------------
@@ -45,9 +51,9 @@ nmags = 500*tmax/250.0 #Number of magnetograms used.
 nu0 = 0.5
 eta = 5e-4*nu0
 
-x0 = -12.0; x1 = 12.0
-y0 = -12.0; y1 = 12.0
-z0 = -0.0; z1 = 24.0
+x0 = -130.0; x1 = 130.0
+y0 = -130.0; y1 = 130.0
+z0 = -25.0; z1 = 100.0
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
@@ -173,6 +179,9 @@ if not hflag:
 else:
     data_directory = '/nobackup/trcn27/mf3d0/%03d/' % run
 
+if winflag:
+    data_directory = '/Data/'
+    
 if not os.path.isdir('./inits'):
     os.mkdir('./inits')
 
@@ -214,6 +223,8 @@ if True:
     grid= Grid()
     init = compute_initial_condition(grid, lbound_pariat, run, background_strength = 1.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
+    compute_electrics(run)
+    
     bx = 0.005; by = 0.0; bz = 0.0
 
     #vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])

@@ -3,9 +3,12 @@ import matplotlib.pyplot as plt
 import random
 import os
 
-if os.uname()[1] == 'brillouin.dur.ac.uk':
-    import pyvista as pv
-
+try:
+    if os.uname()[1] == 'brillouin.dur.ac.uk':
+        import pyvista as pv
+except:
+    pass
+    
 class trace_fieldlines():
     def __init__(self, grid, bx,by,bz,save = -1,plot_vista = True,plot_notvista=False):
         print('Tracing field lines...')
