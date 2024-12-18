@@ -184,7 +184,10 @@ SUBROUTINE calculate_electric()
     end if
     
     !Add electric field loaded in from elsewhere
-
+    if (z_rank == 0) then
+        ex(1:nx,0:ny,0) = ex_surf(1:nx,0:ny)
+        ey(0:nx,1:ny,0) = ey_surf(0:nx,1:ny)
+    end if
 
 
 END SUBROUTINE calculate_electric
@@ -201,16 +204,16 @@ SUBROUTINE import_surface_electric(flow_number)
     INTEGER:: ncid, vid
 
     write (flow_id,'(I4.4)') flow_number
-    velocity_filename = trim("./electric/"//trim(flow_id)//'.nc')
+    electric_filename = trim("./efields/"//trim(flow_id)//'.nc')
 
-    call try(nf90_open(trim(velocity_filename), nf90_nowrite, ncid))
+    call try(nf90_open(trim(electric_filename), nf90_nowrite, ncid))
 
     call try(nf90_inq_varid(ncid, 'ex', vid))
-    call try(nf90_get_var(ncid, vid, surf_ex(0:nx+1,0:ny)), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+2,ny+1/)))
-    
+    call try(nf90_get_var(ncid, vid, surf_ex(0:nx+1,0:ny), &
+    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+2,ny+1/)))    
+
     call try(nf90_inq_varid(ncid, 'ey', vid))
-    call try(nf90_get_var(ncid, vid, surf_ey(0:nx,0:ny+1)), &
+    call try(nf90_get_var(ncid, vid, surf_ey(0:nx,0:ny+1), &
     start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+2/)))
 
     call try(nf90_close(ncid))
