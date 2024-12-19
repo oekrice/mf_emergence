@@ -185,15 +185,15 @@ SUBROUTINE calculate_electric()
     
     !Add electric field loaded in from elsewhere
     if (z_rank == 0) then
-        ex(1:nx,0:ny,0) = ex_surf(1:nx,0:ny)
-        ey(0:nx,1:ny,0) = ey_surf(0:nx,1:ny)
+        ex(1:nx,0:ny,0) = surf_ex(1:nx,0:ny)
+        ey(0:nx,1:ny,0) = surf_ey(0:nx,1:ny)
         
     end if
 
 
 END SUBROUTINE calculate_electric
 
-SUBROUTINE import_surface_electric(flow_number)
+SUBROUTINE import_surface_electric(flow_number, dt_fact)
 
     !Imports the velocity field from the imported DAVE magnetogram
     IMPLICIT NONE
@@ -203,6 +203,7 @@ SUBROUTINE import_surface_electric(flow_number)
     CHARACTER(LEN =64):: electric_filename
     CHARACTER(LEN = 4):: flow_id
     INTEGER:: ncid, vid
+    REAL(num):: dt_fact
 
     write (flow_id,'(I4.4)') flow_number
     electric_filename = trim("./efields/"//trim(flow_id)//'.nc')
@@ -218,6 +219,9 @@ SUBROUTINE import_surface_electric(flow_number)
     start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+2/)))
 
     call try(nf90_close(ncid))
+
+    surf_ex = surf_ex*dt_fact
+    surf_ey = surf_ey*dt_fact
 
 END SUBROUTINE import_surface_electric
 

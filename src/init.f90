@@ -75,7 +75,7 @@ SUBROUTINE read_parameters()
     nz_global = int(variables(3))
     tmax = variables(4)
 
-    nplots = int(variables(5))
+    nplots = variables(5)
     ndiags = int(variables(6))
 
     voutfact = variables(7)
@@ -99,7 +99,7 @@ SUBROUTINE read_parameters()
     hamilton_flag = int(variables(22))
     decay_type = int(variables(23))
 
-    nmags = int(variables(25))
+    nmags = variables(25)
 
 END SUBROUTINE read_parameters
 
