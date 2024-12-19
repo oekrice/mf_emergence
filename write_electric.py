@@ -18,7 +18,7 @@ from scipy.io import netcdf_file
 from scipy.interpolate import RegularGridInterpolator
 from scipy.fft import fft, ifft2, fft2, ifft
 import os
-
+from scipy.ndimage import gaussian_filter
 
 class Grid():
     """In the interest of doing it properly, put grid parameters in here"""
@@ -184,7 +184,7 @@ class FT():
 
 class compute_electrics():
     
-    def __init__(self, run):
+    def __init__(self, run, omega = 0.):
         grid = Grid(run)  #Establish grid (on new scales, not 192)
         
         data_directory = './magnetograms/'
@@ -228,6 +228,14 @@ class compute_electrics():
         
             bfield2 = np.swapaxes(data.variables['bz'][:],0,1)
         
+            bfield1 = gaussian_filter(bfield1, sigma = 1.0)
+            bfield2 = gaussian_filter(bfield2, sigma = 1.0)
+            
+            #Filter the magnetic fields a bit to stop instabilities
+            
+            plt.pcolormesh(bfield2-bfield1)
+            plt.show()
+            
             diff_init = bfield2 - bfield1   #Difference between the magnetic field at import resolution
             
             X, Y = np.meshgrid(grid.xc, grid.yc)
@@ -243,19 +251,39 @@ class compute_electrics():
         
             print('Curl test', np.max(np.abs(curl_test[1:-1,1:-1] + diff[1:-1,1:-1])))
         
+            #Define distribution of the divergence of the electric field. 
+            #Following Cheung and De Rosa, just proportional to the vertical field
+            X, Y = np.meshgrid(grid.xs, grid.ys)
+
+            bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), (0.5 * bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)
+
+            bf = bf_fn((X,Y))   #Difference now interpolated to the new grid
+
+            D = omega*bf
+    
             div_test = grid.div_E(ex, ey)
-            phi = ft.point_transform(-div_test)
+            phi = ft.point_transform(-div_test + D)
             correct_x, correct_y = grid.grad(phi)
             ex += correct_x
             ey += correct_y
         
             div_test = grid.div_E(ex, ey)
-            print('Div Test', np.max(np.abs(div_test[1:-1,1:-1])))
+            print('Div Test', np.max(np.abs(div_test[1:-1,1:-1] - D[1:-1,1:-1])))
         
             curl_test = grid.curl_E(ex, ey)
             
             print('Overall', np.max(np.abs(curl_test[1:-1,1:-1] + diff[1:-1,1:-1])))
         
+            if True:
+                plt.pcolormesh(ey)
+                plt.savefig('plots/ey%d.png' % snap)
+                plt.close()
+                
+                plt.pcolormesh(ex)
+                plt.savefig('plots/ex%d.png' % snap)
+                plt.show()
+
+                
             fid = netcdf_file(efield_fname, 'w')
             fid.createDimension('xs', grid.nx+1)
             fid.createDimension('ys', grid.ny+1)

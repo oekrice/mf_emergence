@@ -223,18 +223,13 @@ if True:
     grid= Grid()
     init = compute_initial_condition(grid, lbound_pariat, run, background_strength = 1.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
-    compute_electrics(run)
+    omega = 0.25
+    compute_electrics(run, omega)
     
     bx = 0.005; by = 0.0; bz = 0.0
 
     #vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])
 
-    if False:
-        plt.pcolormesh(grid.xs,grid.ys,bz[1:-1,1:-1,0].T,cmap='plasma')
-        plt.colorbar()
-
-        plt.quiver(grid.xs,grid.ys,vx_surf.T,vy_surf.T)
-        plt.show()
     #trace_fieldlines(Grid(),bx,by,bz)
 
 #RUN CODE
