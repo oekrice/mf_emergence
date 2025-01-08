@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import random
 from scipy.linalg import eigh_tridiagonal
 from scipy.io import netcdf_file, FortranFile
+from scipy.interpolate import RegularGridInterpolator
 
 
 class compute_initial_condition():
@@ -40,43 +41,125 @@ class compute_initial_condition():
 
         self.init_filename = init_filename
 
-        print('Initialising with horizontal background field')
+        if False:
+            print('Initialising with horizontal background field')
 
-        self.bx = np.zeros((self.nx+1,self.ny+2,self.nz+2))
-        self.by = np.zeros((self.nx+2,self.ny+1,self.nz+2))
-        self.bz = np.zeros((self.nx+2,self.ny+2,self.nz+1))
+            self.bx = np.zeros((self.nx+1,self.ny+2,self.nz+2))
+            self.by = np.zeros((self.nx+2,self.ny+1,self.nz+2))
+            self.bz = np.zeros((self.nx+2,self.ny+2,self.nz+1))
 
-        self.bx[:,1:-1,1:-1] = 0.005
-        self.by[1:-1,:,1:-1] = 0.0
-        self.bz[1:-1,1:-1,:] = 0.0
+            self.bx[:,1:-1,1:-1] = 0.005
+            self.by[1:-1,:,1:-1] = 0.0
+            self.bz[1:-1,1:-1,:] = 0.0
 
-        #Jx Conditions
-        self.by[:,:,0] = self.by[:,:,1] - self.dz*(self.bz[:,1:,0] - self.bz[:,:-1,0])/self.dy
-        self.by[:,:,-1] = self.by[:,:,-2] + self.dz*(self.bz[:,1:,-1] - self.bz[:,:-1,-1])/self.dy
+            #Jx Conditions
+            self.by[:,:,0] = self.by[:,:,1] - self.dz*(self.bz[:,1:,0] - self.bz[:,:-1,0])/self.dy
+            self.by[:,:,-1] = self.by[:,:,-2] + self.dz*(self.bz[:,1:,-1] - self.bz[:,:-1,-1])/self.dy
 
-        self.bz[:,0,:] = self.bz[:,1,:] - self.dy*(self.by[:,0,1:] - self.by[:,0,:-1])/self.dz
-        self.bz[:,-1,:] = self.bz[:,-2,:] + self.dy*(self.by[:,-1,1:] - self.by[:,-1,:-1])/self.dz
+            self.bz[:,0,:] = self.bz[:,1,:] - self.dy*(self.by[:,0,1:] - self.by[:,0,:-1])/self.dz
+            self.bz[:,-1,:] = self.bz[:,-2,:] + self.dy*(self.by[:,-1,1:] - self.by[:,-1,:-1])/self.dz
 
-        #Jy Conditions
-        self.bx[:,:,0] = self.bx[:,:,1] - self.dz*(self.bz[1:,:,0] - self.bz[:-1,:,0])/self.dx
-        self.bx[:,:,-1] = self.bx[:,:,-2] + self.dz*(self.bz[1:,:,-1] - self.bz[:-1,:,-1])/self.dx
+            #Jy Conditions
+            self.bx[:,:,0] = self.bx[:,:,1] - self.dz*(self.bz[1:,:,0] - self.bz[:-1,:,0])/self.dx
+            self.bx[:,:,-1] = self.bx[:,:,-2] + self.dz*(self.bz[1:,:,-1] - self.bz[:-1,:,-1])/self.dx
 
-        self.bz[0,:,:] = self.bz[1,:,:] - self.dx*(self.bx[0,:,1:] - self.bx[0,:,:-1])/self.dz
-        self.bz[-1,:,:] = self.bz[-2,:,:] + self.dx*(self.bx[-1,:,1:] - self.bx[-1,:,:-1])/self.dz
+            self.bz[0,:,:] = self.bz[1,:,:] - self.dx*(self.bx[0,:,1:] - self.bx[0,:,:-1])/self.dz
+            self.bz[-1,:,:] = self.bz[-2,:,:] + self.dx*(self.bx[-1,:,1:] - self.bx[-1,:,:-1])/self.dz
 
-        #Jz Conditions
-        self.by[0,:,:] = self.by[1,:,:] - self.dx*(self.bx[0,1:,:] - self.bx[0,:-1,:])/self.dy
-        self.by[-1,:,:] = self.by[-2,:,:] + self.dx*(self.bx[-1,1:,:] - self.bx[-1,:-1,:])/self.dy
+            #Jz Conditions
+            self.by[0,:,:] = self.by[1,:,:] - self.dx*(self.bx[0,1:,:] - self.bx[0,:-1,:])/self.dy
+            self.by[-1,:,:] = self.by[-2,:,:] + self.dx*(self.bx[-1,1:,:] - self.bx[-1,:-1,:])/self.dy
 
-        self.bx[:,0,:] = self.bx[:,1,:] - self.dy*(self.by[1:,0,:] - self.by[:-1,0,:])/self.dx
-        self.bx[:,-1,:] = self.bx[:,-2,:] + self.dy*(self.by[1:,-1,:] - self.by[:-1,-1,:])/self.dx
+            self.bx[:,0,:] = self.bx[:,1,:] - self.dy*(self.by[1:,0,:] - self.by[:-1,0,:])/self.dx
+            self.bx[:,-1,:] = self.bx[:,-2,:] + self.dy*(self.by[1:,-1,:] - self.by[:-1,-1,:])/self.dx
+
+        else:
+            print('Initialising with potential field')
+
+            #Need to interpolate onto a new grid
+
+            X, Y = np.meshgrid(self.xc[1:-1], self.yc[1:-1])
+
+            nx_import = np.shape(lbound_fn)[0]; ny_import = np.shape(lbound_fn)[1]
+
+            xs_import = np.linspace(self.xs[0], self.xs[-1], nx_import+2)
+            ys_import = np.linspace(self.ys[0], self.ys[-1], ny_import+2)
+
+            lbound_interp = RegularGridInterpolator((xs_import[1:-1], ys_import[1:-1]), lbound_fn, bounds_error = False, method = 'linear', fill_value = None)
+
+            self.lbound = lbound_interp((X, Y))
+
+            self.lbound_transform = np.zeros((self.nx,self.ny))
+
+            self.xbasis = np.zeros((self.nx, self.nx+2))
+            self.ybasis = np.zeros((self.ny, self.ny+2))
+
+
+            #find eigenvalues and basis vectors (eigenvalues are m^2 and numbered k)
+            #-----------------------------------------
+            print('Calculating horizontal basis functions...')
+            self.m2, self.n2, self.xbasis[:,1:-1], self.ybasis[:,1:-1] = self.find_eigenstuff()
+
+            self.xbasis[:,0] = self.xbasis[:,1]; self.xbasis[:,-1] = self.xbasis[:,-2]
+            self.ybasis[:,0] = self.ybasis[:,1]; self.ybasis[:,-1] = self.ybasis[:,-2]
+
+            print('Basis functions calculated.')
+
+            print('Starting "Fourier" Transform')
+            error = 1e6
+            self.phi = np.zeros((self.nx+2, self.ny+2,self.nz+2))
+            self.test1 = np.zeros((self.nx+2))
+            for k_c in range(self.nx+self.ny):
+                for k1 in range(self.nx):
+                    k2 = k_c-k1
+                    if k2 >= self.ny or k2 < 0:
+                        continue
+                    if error < boundary_error_limit:
+                        break
+
+                    self.lbound_transform[k1,k2] = self.coeff(self.lbound, k1,k2)
+                    if abs(self.lbound_transform[k1,k2]) < 1e-10:
+                        continue
+                    zbasis = self.find_zbasis(self.m2[k1],self.n2[k2])
+                    self.phi = self.phi + self.lbound_transform[k1,k2]*self.xbasis[k1,:][:,np.newaxis,np.newaxis]*self.ybasis[k2,:][np.newaxis,:,np.newaxis]*zbasis[np.newaxis,np.newaxis,:]
+                    self.test1 = self.test1 + self.lbound_transform[k1,k2]*self.xbasis[k1,:]*self.ybasis[k2,0]
+                    lbound_test = (self.phi[1:-1,1:-1,1] - self.phi[1:-1,1:-1,0])/self.dz
+                    error = np.sqrt(np.sum((lbound_test - self.lbound)**2)/(self.nx*self.ny))
+            self.bx = np.zeros((self.nx+1,self.ny+2,self.nz+2))
+            self.by = np.zeros((self.nx+2,self.ny+1,self.nz+2))
+            self.bz = np.zeros((self.nx+2,self.ny+2,self.nz+1))
+
+            self.bx[:,1:-1,1:-1] = (self.phi[1:,1:-1,1:-1] - self.phi[:-1,1:-1,1:-1])/self.dx
+            self.by[1:-1,:,1:-1] = (self.phi[1:-1,1:,1:-1] - self.phi[1:-1,:-1,1:-1])/self.dy
+            self.bz[1:-1,1:-1,:] = (self.phi[1:-1,1:-1,1:] - self.phi[1:-1,1:-1,:-1])/self.dz
+
+            #Jx Conditions
+            self.by[:,:,0] = self.by[:,:,1] - self.dz*(self.bz[:,1:,0] - self.bz[:,:-1,0])/self.dy
+            self.by[:,:,-1] = self.by[:,:,-2] + self.dz*(self.bz[:,1:,-1] - self.bz[:,:-1,-1])/self.dy
+
+            self.bz[:,0,:] = self.bz[:,1,:] - self.dy*(self.by[:,0,1:] - self.by[:,0,:-1])/self.dz
+            self.bz[:,-1,:] = self.bz[:,-2,:] + self.dy*(self.by[:,-1,1:] - self.by[:,-1,:-1])/self.dz
+
+            #Jy Conditions
+            self.bx[:,:,0] = self.bx[:,:,1] - self.dz*(self.bz[1:,:,0] - self.bz[:-1,:,0])/self.dx
+            self.bx[:,:,-1] = self.bx[:,:,-2] + self.dz*(self.bz[1:,:,-1] - self.bz[:-1,:,-1])/self.dx
+
+            self.bz[0,:,:] = self.bz[1,:,:] - self.dx*(self.bx[0,:,1:] - self.bx[0,:,:-1])/self.dz
+            self.bz[-1,:,:] = self.bz[-2,:,:] + self.dx*(self.bx[-1,:,1:] - self.bx[-1,:,:-1])/self.dz
+
+            #Jz Conditions
+            self.by[0,:,:] = self.by[1,:,:] - self.dx*(self.bx[0,1:,:] - self.bx[0,:-1,:])/self.dy
+            self.by[-1,:,:] = self.by[-2,:,:] + self.dx*(self.bx[-1,1:,:] - self.bx[-1,:-1,:])/self.dy
+
+            self.bx[:,0,:] = self.bx[:,1,:] - self.dy*(self.by[1:,0,:] - self.by[:-1,0,:])/self.dx
+            self.bx[:,-1,:] = self.bx[:,-2,:] + self.dy*(self.by[1:,-1,:] - self.by[:-1,-1,:])/self.dx
 
         #anglerads = np.pi*background_angle/180.
         #self.bz[:,:,:] = self.bz[:,:,:] - background_strength
         #self.bx[:,:,:] = self.bx[:,:,:] - np.tan(anglerads)*background_strength
 
         print('')
-        print('Potential Field Calculated')
+        print('Field Calculated')
 
         self.find_vector_potentials()
 

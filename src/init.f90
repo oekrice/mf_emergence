@@ -100,6 +100,8 @@ SUBROUTINE read_parameters()
     decay_type = int(variables(23))
 
     nmags = variables(25)
+    tstart = variables(26)
+
 
 END SUBROUTINE read_parameters
 

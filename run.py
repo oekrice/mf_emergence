@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from init import compute_initial_condition
 from fltrace import trace_fieldlines
 from write_electric import compute_electrics
+from scipy.io import netcdf_file
 
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
@@ -40,12 +41,13 @@ shearfact = 1.0#3.7e-5   #factor by which to change the imported 'speed'
 eta0 = 0.0
 
 tmax = 250.0
+tstart = 0.0
 
 nx = 64
 ny = 64
 nz = 64
 
-nplots = 100
+nplots = 250
 ndiags = 100
 nmags = 500*tmax/250.0 #Number of magnetograms used.
 
@@ -171,6 +173,7 @@ variables[24] = backfield_angle
 
 #Number of imported magnetograms
 variables[25] = nmags
+variables[26] = tstart
 
 #SOME FOLDER ADMIN
 #-------------------------------------
@@ -222,12 +225,27 @@ class Grid():
 
 if True:
     grid= Grid()
-    init = compute_initial_condition(grid, lbound_pariat, run, background_strength = 1.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
+    mag_import = int((nmags-1)*tstart/tmax)
+    print('Initial mag to build field from = ', mag_import)
+    #Find lbound from magnetogram file
+    fname = './magnetograms/%04d.nc' % (mag_import)
 
-    omega = 0.0
-    #compute_electrics(run, omega)
+    try:
+        data = netcdf_file(fname, 'r', mmap=False)
+        print('File', fname, 'found')
+
+    except:
+        print('File', fname, 'not found')
+        raise Exception('Initial boundary data not found')
+
+    bz = np.swapaxes(data.variables['bz'][:],0,1)
+
+    init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
+
+    omega = 0.015
+    compute_electrics(run, omega)
     
-    bx = 0.0; by = 0.0; bz = 0.0
+    #bx = 0.0; by = 0.0; bz = 0.0
 
     #vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])
 

@@ -100,12 +100,12 @@ class Grid():
         self.z0 = zs[0]; self.z1 = zs[-1]
         self.nx = nx ; self.ny = ny; self.nz = nz
 
-i = 0
+start = 0
 
 if len(sys.argv) > 2:
-    i = int(sys.argv[2])
+    start = int(sys.argv[2])
 
-for plot_num in range(0,nsnaps,1):
+for plot_num in range(start,nsnaps,1):
 
     if remote_flag:
         data_directory = '/nobackup/trcn27/mf3d0/%03d/' % run

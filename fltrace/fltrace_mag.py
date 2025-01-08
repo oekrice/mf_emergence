@@ -69,7 +69,7 @@ class trace_fieldlines():
             #Establish start points for the field line plotting
             self.max_line_length = 10000
             self.ds = 0.1 #Tracing 'timestep' as a proportion of the grid size
-            self.weakness_limit = 1e-6   #Minimum field strength to stop plotting
+            self.weakness_limit = 1e-4  #Minimum field strength to stop plotting
             self.line_plot_length = 100  #To save time while plotting, reduce the length of the plotted lines
 
             #Import bz as a test of the resolutions (and for the pyvista plot)
@@ -126,11 +126,13 @@ class trace_fieldlines():
             #Plot the field lines (using pyvista)
             if not os.path.exists('./plots/'):
                 os.mkdir('plots')
-            self.plot_vista()
 
             os.system('rm ./fl_data/flines%03d.nc' % self.snap)
             os.system('rm ./fl_data/flparameters%03d.txt' % self.snap)
             os.system('rm ./fl_data/starts%03d.txt' % self.snap)
+
+            self.plot_vista()
+
 
     def plot_vista(self):
         print('Plotting...')
@@ -157,13 +159,18 @@ class trace_fieldlines():
             else:
                 continue
 
-            line = np.array(thinned_line).tolist()
+            line = np.array(thinned_line)
             doplot = True
             if line_length == 0:
                 doplot = False
+            #Filter if out of a specific range
+            maxs = np.max(np.sqrt(line[:,0]**2 + line[:,1]**2))
 
+            if maxs > 0.6*self.xs[-1]:
+                doplot = False
             #if line[-1][2] > 11.0 and line[-1][2] < 99.0:
             #    doplot = False
+            line = line.tolist()
             if doplot:
                 p.add_mesh(pv.Spline(line, len(line)),color='white',line_width=0.25)
 
@@ -336,7 +343,7 @@ else:
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
 set_num = int(sys.argv[2])
 snap_min = 0 + set_num
-while snap_min < 51:
+while snap_min < 250:
     print('Plot number', snap_min)
     trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
     snap_min = snap_min + nset
