@@ -233,8 +233,8 @@ class compute_electrics():
             
             #Filter the magnetic fields a bit to stop instabilities
             
-            plt.pcolormesh(bfield2-bfield1)
-            plt.show()
+            #plt.pcolormesh(bfield2-bfield1)
+            #plt.show()
             
             diff_init = bfield2 - bfield1   #Difference between the magnetic field at import resolution
             
@@ -274,7 +274,7 @@ class compute_electrics():
             
             print('Overall', np.max(np.abs(curl_test[1:-1,1:-1] + diff[1:-1,1:-1])))
         
-            if True:
+            if False:
                 plt.pcolormesh(ey)
                 plt.savefig('plots/ey%d.png' % snap)
                 plt.close()

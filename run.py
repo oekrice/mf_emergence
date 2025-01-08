@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from init import compute_initial_condition
 from fltrace import trace_fieldlines
 from write_electric import compute_electrics
+
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
 else:
@@ -48,7 +49,7 @@ nplots = 100
 ndiags = 100
 nmags = 500*tmax/250.0 #Number of magnetograms used.
 
-nu0 = 0.5
+nu0 = 10.0
 eta = 5e-4*nu0
 
 x0 = -130.0; x1 = 130.0
@@ -223,10 +224,10 @@ if True:
     grid= Grid()
     init = compute_initial_condition(grid, lbound_pariat, run, background_strength = 1.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
-    omega = 0.25
-    compute_electrics(run, omega)
+    omega = 0.0
+    #compute_electrics(run, omega)
     
-    bx = 0.005; by = 0.0; bz = 0.0
+    bx = 0.0; by = 0.0; bz = 0.0
 
     #vx_surf, vy_surf = surface_flow(grid,bz[:,:,0])
 
