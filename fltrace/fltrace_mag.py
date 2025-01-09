@@ -139,7 +139,7 @@ class trace_fieldlines():
         x, y = np.meshgrid(self.xs, self.ys)
         z = 10*np.ones((np.shape(x)))
         surface = pv.StructuredGrid(x, y, z)
-        p = pv.Plotter(off_screen=False)
+        p = pv.Plotter(off_screen=True)
         p.background_color = "black"
 
         print(len(self.lines), ' lines imported')
@@ -260,7 +260,7 @@ class trace_fieldlines():
 
         max_surface = np.max(np.abs(surface_array)) + 1e-6
 
-        nlines = 1000
+        nlines = 250
 
         alpha = 2.0
         alphasum = np.sum(np.abs(surface_array)**alpha)
