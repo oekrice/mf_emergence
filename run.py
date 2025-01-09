@@ -243,7 +243,7 @@ if True:
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
     omega = 0.015
-    #compute_electrics(run, omega)
+    compute_electrics(run, omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0
 
