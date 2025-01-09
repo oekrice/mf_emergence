@@ -51,7 +51,7 @@ nplots = 10
 ndiags = 100
 nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 
-nu0 = 1. + 9.*run
+nu0 = 10.0#np.geomspace(1.0,50.0,10)[run]
 eta = 5e-4*nu0
 
 x0 = -130.0; x1 = 130.0
@@ -242,7 +242,7 @@ if True:
 
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
-    omega = 0.015
+    omega = np.linspace(0.0,0.05,10)[run]
     compute_electrics(run, omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0
