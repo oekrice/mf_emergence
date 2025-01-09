@@ -140,7 +140,7 @@ class trace_fieldlines():
         x, y = np.meshgrid(self.xs, self.ys)
         z = 10*np.ones((np.shape(x)))
         surface = pv.StructuredGrid(x, y, z)
-        p = pv.Plotter(off_screen=False)
+        p = pv.Plotter(off_screen=True)
         p.background_color = "black"
 
         print(len(self.lines), ' lines imported')
