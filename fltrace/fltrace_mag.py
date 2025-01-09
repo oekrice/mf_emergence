@@ -48,6 +48,7 @@ class trace_fieldlines():
         else:
             self.start_seeds = np.loadtxt('start_seeds.txt', delimiter = ',')
 
+        self.machine_flag = machine_flag
         print('Data root', data_directory)
         #Establish grid parameters (can be read in from elsewhere of course)
         for snap_number in range(snap_min, snap_max):
@@ -79,7 +80,7 @@ class trace_fieldlines():
 
             self.x0 = -130.; self.x1 = 130.
             self.y0 = -130.; self.y1 = 130.
-            self.z0 = 10.; self.z1 = 100.
+            self.z0 = 0.; self.z1 = 130.
 
             self.xs = np.linspace(self.x0,self.x1,self.nx+1)
             self.ys = np.linspace(self.y0,self.y1,self.ny+1)
@@ -139,7 +140,7 @@ class trace_fieldlines():
         x, y = np.meshgrid(self.xs, self.ys)
         z = 10*np.ones((np.shape(x)))
         surface = pv.StructuredGrid(x, y, z)
-        p = pv.Plotter(off_screen=True)
+        p = pv.Plotter(off_screen=False)
         p.background_color = "black"
 
         print(len(self.lines), ' lines imported')
@@ -308,6 +309,7 @@ class trace_fieldlines():
         variables[14] = self.ds
         variables[15] = self.weakness_limit
         variables[16] = self.data_source
+        variables[17] = self.machine_flag
 
         np.savetxt('./fl_data/flparameters%03d.txt' % self.snap, variables)   #variables numbered based on run number (up to 1000)
         np.savetxt('./fl_data/starts%03d.txt' % self.snap, self.starts)   #Coordinates of the start points of each field line (do this in python)
@@ -340,10 +342,16 @@ if len(sys.argv) > 2:
 else:
     snap_min = 0
 
+if len(sys.argv) > 3:
+    snap_max = int(sys.argv[3])
+else:
+    snap_max = snap_min + 1
+
+
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
 set_num = int(sys.argv[2])
 snap_min = 0 + set_num
-while snap_min < 250:
+for snap in range(snap_min, snap_max):
     print('Plot number', snap_min)
     trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
     snap_min = snap_min + nset

@@ -205,23 +205,29 @@ SUBROUTINE import_surface_electric(flow_number, dt_fact)
     INTEGER:: ncid, vid
     REAL(num):: dt_fact
 
-    write (flow_id,'(I4.4)') flow_number
-    electric_filename = trim("./efields/"//trim(flow_id)//'.nc')
+    if (flow_number < 499) then
+        write (flow_id,'(I4.4)') flow_number
+        electric_filename = trim("./efields/"//trim(flow_id)//'.nc')
 
-    call try(nf90_open(trim(electric_filename), nf90_nowrite, ncid))
+        call try(nf90_open(trim(electric_filename), nf90_nowrite, ncid))
 
-    call try(nf90_inq_varid(ncid, 'ex', vid))
-    call try(nf90_get_var(ncid, vid, surf_ex(0:nx+1,0:ny), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+2,ny+1/)))    
+        call try(nf90_inq_varid(ncid, 'ex', vid))
+        call try(nf90_get_var(ncid, vid, surf_ex(0:nx+1,0:ny), &
+        start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+2,ny+1/)))
 
-    call try(nf90_inq_varid(ncid, 'ey', vid))
-    call try(nf90_get_var(ncid, vid, surf_ey(0:nx,0:ny+1), &
-    start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+2/)))
+        call try(nf90_inq_varid(ncid, 'ey', vid))
+        call try(nf90_get_var(ncid, vid, surf_ey(0:nx,0:ny+1), &
+        start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny+2/)))
 
-    call try(nf90_close(ncid))
+        call try(nf90_close(ncid))
 
-    surf_ex = surf_ex*dt_fact
-    surf_ey = surf_ey*dt_fact
+        surf_ex = surf_ex*dt_fact
+        surf_ey = surf_ey*dt_fact
+
+    else
+        surf_ex = 0.0_num
+        surf_ey = 0.0_num
+    end if
 
 END SUBROUTINE import_surface_electric
 

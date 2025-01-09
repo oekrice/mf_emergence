@@ -27,8 +27,6 @@ PROGRAM fltrace
     close(1)
 
     !##########################################
-    !DATA ROOT HERE. NEED TO READ IN AS STRING REALLY
-    data_root = '/extra/tmp/trcn27/mf3d/'
 
     ! Put some of the major variables in here - things that can be changed occasionally but not in a series of runs
 
@@ -42,6 +40,17 @@ PROGRAM fltrace
     y1 = flparameters(7)
     z0 = flparameters(8)
     z1 = flparameters(9)
+
+    machine_flag = int(flparameters(17))
+    !DATA ROOT HERE. NEED TO READ IN AS STRING REALLY
+
+    if (machine_flag == 0) then
+        data_root = '/extra/tmp/trcn27/mf3d/'
+    else if (machine_flag == 1) then
+        data_root = '/nobackup/trcn27/mf3d0/'
+    else
+        data_root = '../Data/'
+    end if
 
     snap = int(flparameters(10))
     nstarts = int(flparameters(11))

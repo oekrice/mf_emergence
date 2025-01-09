@@ -20,7 +20,7 @@ MODULE shared_data
 
     !Parameters
     real(num), dimension(:):: flparameters(0:19)
-    integer:: run, snap, print_flag, data_source
+    integer:: run, snap, print_flag, data_source, machine_flag
     CHARACTER(LEN =128):: data_root
     CHARACTER(LEN =128):: bfield_filename
 

@@ -36,27 +36,27 @@ except:
 
 #DYNAMIC SYSTEM PARAMETERS
 #-------------------------------------
-voutfact = 0.2
+voutfact = 5.0
 shearfact = 1.0#3.7e-5   #factor by which to change the imported 'speed'
 eta0 = 0.0
 
-tmax = 250.0
+tmax = 400.0
 tstart = 0.0
 
-nx = 96
-ny = 96
-nz = 96
+nx = 64
+ny = 64
+nz = 64
 
-nplots = 250
+nplots = 10
 ndiags = 100
-nmags = 500*tmax/250.0 #Number of magnetograms used.
+nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 
-nu0 = 10.0
+nu0 = 1. + 9.*run
 eta = 5e-4*nu0
 
 x0 = -130.0; x1 = 130.0
 y0 = -130.0; y1 = 130.0
-z0 = -25.0; z1 = 100.0
+z0 = 0.0; z1 = 130.0
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
@@ -243,7 +243,7 @@ if True:
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
 
     omega = 0.015
-    compute_electrics(run, omega)
+    #compute_electrics(run, omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0
 
