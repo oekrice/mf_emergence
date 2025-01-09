@@ -38,7 +38,7 @@ class trace_fieldlines():
         if machine_flag == 0:
             data_directory = '/extra/tmp/trcn27/mf3d/%03d/' % run
         if machine_flag == 1:
-            data_directory = '/nobackup/trcn27/flux_emergence/%03d/' % run
+            data_directory = '/nobackup/trcn27/mf3d0/%03d/' % run
         if machine_flag == 2:
             data_directory = ('../Data%03d/' % run)
         #Establish random seeds for field line plotting

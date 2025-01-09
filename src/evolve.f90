@@ -240,7 +240,7 @@ SUBROUTINE update_surface_flows(flow_number)
 
     CHARACTER(LEN =64):: velocity_filename
     CHARACTER(LEN = 4):: flow_id
-    INTEGER:: ncid, vid
+    !INTEGER:: ncid, vid
 
     write (flow_id,'(I4.4)') flow_number
     velocity_filename = trim("./magnetograms/velocity"//trim(flow_id)//'.nc')

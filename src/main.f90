@@ -43,12 +43,10 @@ PROGRAM main
     !Adjust so this aligns with a magnetogram.
     CALL save_snap(0)
 
-    init_mag = int((nmags-1)*tstart/tmax) + 1
-    nstart = init_mag*mag_interval
 
     !Adjust so magnetic inputs are precisely at timesteps
 
-    if (nmags == 500) then
+    if (nmags > 499) then
         tmags = 0.5_num
     else
         tmags = tmax/nmags !Time in between magnetic field inputs
@@ -62,6 +60,8 @@ PROGRAM main
     !nt = (nmags-1)*(int(tmags/dt) + 1)
     dt = tmags/mag_interval
 
+    init_mag = int((nmags-1)*tstart/tmax) + 1
+    nstart = init_mag*mag_interval
 
     !print*, tmags/dt, int(tmags/dt) + 1
     !print*, '2', nt, dt, tmags/dt, tmax/dt
