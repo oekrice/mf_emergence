@@ -200,11 +200,15 @@ class compute_electrics():
         
         if not os.path.exists('efields'):
             os.mkdir('efields')
+
+        if not os.path.exists('efields/%03d' % run):
+            os.mkdir('efields/%03d' % run)
+
         for snap in range(0,500):
         
             print('Importing fields', snap, 'and', snap + 1)
             bfield_fname = '%s%04d.nc' % (data_directory, snap)
-            efield_fname = '%s%04d.nc' % ('./efields/', snap)
+            efield_fname = '%s%03d/%04d.nc' % ('./efields/', run, snap)
         
             try:
                 data = netcdf_file(bfield_fname, 'r', mmap=False)
