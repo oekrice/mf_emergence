@@ -31,7 +31,7 @@ SUBROUTINE timestep()
 
     CALL calculate_velocity()
 
-    !CALL calculate_pressure()
+    CALL calculate_pressure()
 
     CALL calculate_electric()
 

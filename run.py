@@ -47,7 +47,7 @@ nx = 128
 ny = 128
 nz = 128
 
-nplots = 100
+nplots = 10
 ndiags = 100
 nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 
@@ -60,7 +60,7 @@ z0 = 0.0; z1 = 130.0
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
-decay_type = 0  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
+decay_type = 3  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
 
 if decay_type == 0: #No pressure
     zstar = 0.0; a = 0.0; b = 0.0; deltaz = 0.0
@@ -77,12 +77,12 @@ if decay_type == 1: #exponential decay
 
 if decay_type == 2: #smooth tanh
     a = 0.25; b = 1.0
-    zstar = np.linspace(0.0,0.3,10)[run//50]*z1
+    zstar = np.linspace(0.0,0.3,10)[run]*z1
     deltaz = 0.1*z1
 
 if decay_type == 3: #sharp tanh
     a = 0.25; b = 1.0
-    zstar = 0.2
+    zstar = np.linspace(0.0,0.3,10)[run]*z1
     deltaz = 0.02*z1
 
 #INITIAL LOWER BOUNDARY CONDITION
