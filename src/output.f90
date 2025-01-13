@@ -17,6 +17,7 @@ SUBROUTINE diagnostics(diag_num)
     IMPLICIT NONE
     INTEGER:: diag_num, proc_test
     INTEGER:: i,j,k, xrank_in, yrank_in, zrank_in
+    INTEGER:: x_target, y_target
     LOGICAL:: flag1
     character(len=100):: filename
 
@@ -127,34 +128,29 @@ SUBROUTINE diagnostics(diag_num)
 
     l0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)) = l0(1:nx,1:ny,1:nz)
 
+    !The slice is halfway in the x and y dimensions -- establish which processes need this
+    x_target = nx_global/2
+    y_target = ny_global/2
 
-    do proc_test = 1, nprocs-1
-        if (proc_num == proc_test) then
-            !print*, 'Sending from', proc_test
-            call mpi_send(bx0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)), 1, b0_chunk, 0, 0, comm, ierr)
-            !print*, 'Sent from', proc_test
-        end if
-        if (proc_num == 0) then
-            xrank_in = allranks(proc_test,0); yrank_in = allranks(proc_test,1); zrank_in = allranks(proc_test,2)
-            !print*, 'Receiving from', proc_test, xrank_in, yrank_in, zrank_in
-            !print*, nx*(xrank_in+1), ny*(yrank_in+1), nz*(zrank_in+1)
-            call mpi_recv(bx0_global(1+nx*xrank_in:nx*(xrank_in+1), 1+ny*yrank_in:ny*(yrank_in+1), 1+nz*zrank_in:nz*(zrank_in+1)), 1, b0_chunk, proc_test, 0, comm, MPI_STATUS_IGNORE, ierr)
+    bx_slice = 0.0_num
+    bx_slice(1+nz*z_rank:nz*(z_rank + 1)) = bx0_global(x_target, y_target, 1+nz*z_rank:nz*(z_rank + 1))
 
-            !print*, 'Received from', proc_test, xrank_in, yrank_in, zrank_in
-            !print*, shape(bx0), shape(bx0_global)
-        end if
-        call MPI_BARRIER(comm, ierr)
-
+    do k = 1, nz
+        lf_heights(k + nz*z_rank) = sum(l0_global(:, :, k + nz*z_rank))
     end do
 
+    do k = 1, nz_global
+        call MPI_ALLREDUCE(bx_slice(k),bx_slice(k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
 
+        call MPI_ALLREDUCE(lf_heights(k),lf_heights(k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
 
+    end do
 
 
     if (proc_num == 0) then
         !DO ROPE HEIGHT
         !Take the slice of relevance
-        bx_slice(1:nz_global) = bx0_global(nx_global/2, ny_global/2, 1:nz_global)
+        !bx_slice(1:nz_global) = bx0_global(nx_global/2, ny_global/2, 1:nz_global)
         !Centre of the rope will be the point at which (working down) positive will go to negative
         flag1 = .false.; diag_nulls(diag_num) = 0.0_num
         do k = nx_global, 2, -1
@@ -162,7 +158,7 @@ SUBROUTINE diagnostics(diag_num)
 
             if (flag1 .and. bx_slice(k-1) < 0.0 .and. bx_slice(k) > 0.0) then
                 !Centre is between these two values
-                diag_nulls(diag_num) = (zc_global(k)*abs(bx_slice(k-1)) + & 
+                diag_nulls(diag_num) = (zc_global(k)*abs(bx_slice(k-1)) + &
 		zc_global(k-1)*abs(bx_slice(k)))/(abs(bx_slice(k)) + abs(bx_slice(k-1)))
                 print*, 'Flux rope found at height', diag_nulls(diag_num)
                 exit
