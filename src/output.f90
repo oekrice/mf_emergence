@@ -42,8 +42,8 @@ SUBROUTINE diagnostics(diag_num)
         allocate(diag_avgj(0:ndiags-1)); allocate(diag_energy(0:ndiags-1))
         allocate(diag_maxlorentz(0:ndiags-1)); allocate(diag_avglorentz(0:ndiags-1))
         allocate(diag_nulls(0:ndiags-1))
-        diag_oflux = 0.0_num; diag_sumj = 0.0_num; diag_avgj = 0.0_num; diag_energy = 0.0_num
-        diag_maxlorentz = 0.0_num; diag_avglorentz = 0.0_num; diag_time = 0.0_num; diag_nulls = 0.0_num
+        diag_oflux = 1e6; diag_sumj = 1e6; diag_avgj = 1e6; diag_energy = 1e6
+        diag_maxlorentz = 1e6; diag_avglorentz = 1e6; diag_time = 1e6; diag_nulls = 1e6
     end if
 
     !CURRENT THINGS
@@ -61,7 +61,6 @@ SUBROUTINE diagnostics(diag_num)
     b0 = bx0**2 + by0**2 + bz0**2
 
     !ELECTRIC FIELD THINGS
-    !CURRENT THINGS
     ex0 = 0.25_num*(ex(1:nx,0:ny-1,0:nz-1) + ex(1:nx,1:ny,0:nz-1) + ex(1:nx,0:ny-1,1:nz)  + ex(1:nx,0:ny-1,0:nz-1) )
     ey0 = 0.25_num*(ey(0:nx-1,1:ny,0:nz-1) + ey(1:nx,1:ny,0:nz-1) + ey(0:nx-1,1:ny,1:nz)  + ey(0:nx-1,1:ny,0:nz-1) )
     ez0 = 0.25_num*(ez(0:nx-1,0:ny-1,1:nz) + ez(1:nx,0:ny-1,1:nz) + ez(0:nx-1,1:ny,1:nz)  + ez(1:nx,1:ny,1:nz) )
@@ -93,19 +92,25 @@ SUBROUTINE diagnostics(diag_num)
     CALL MPI_REDUCE(energy(proc_num), diag_energy(diag_num), 1, MPI_DOUBLE_PRECISION, MPI_SUM, 0, comm, ierr)
 
     !Want the null height, but this depends on tricksy MPI stuff. Might have to be smart :(
-    !MPI all the individual processes into bz0_global
+    !MPI all the individual processes into bz0_global, one at a time
     bz0_global = 0.0_num
-    if (proc_num == 0) then
+
+    !Fill in the bit from the root process, this is easy.
+    !What does MPI gather do?!?!
+
+    !This gives the rank information so don't need to send it or anything. Good good. Why bz?!
     bz0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)) = bz0(1:nx,1:ny,1:nz)
-    end if
+
+
+
     !CALL MPI_GATHER(bz0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)), bz0_global, nx*ny*nz, MPI_DOUBLE_PRECISION, MPI_SUM, 0, comm, ierr)
-!     do proc_test = 1, nprocs-1
-!         if (proc_num == proc_test) then
-!             print*, 'Sending from', proc_test
+    !do proc_test = 1, nprocs-1
+    !     if (proc_num == proc_test) then
+    !         print*, 'Sending from', proc_test
 !             call mpi_send(bz0(1:nx,1:ny,1:nz), 1, b0_chunk, 0, 0, comm, ierr)
-!             print*, 'Sent from', proc_test
-!         end if
-!     end do
+    !        print*, 'Sent from', proc_test
+    !     end if
+    ! end do
 !     do proc_test = 1, nprocs-1
 !         !Need coordinates of that process. Don't know them...
 !         if (proc_num == 0) then

@@ -42,7 +42,7 @@ PROGRAM main
     t = tstart
     !Adjust so this aligns with a magnetogram.
     CALL save_snap(0)
-
+    CALL diagnostics(0)
 
     !Adjust so magnetic inputs are precisely at timesteps
 
@@ -76,8 +76,9 @@ PROGRAM main
         end if
 
         if (MOD(n, int(nt/int(ndiags-1))) == 0) then   ! Save a snapshot (prints a message as well)
-            !CALL diagnostics(int(n/(nt/(ndiags-1))))  !WILL BREAK FOR tstart != 0
-            !if (proc_num == 0) print*, 'Step', n, 'at time', t
+            if (proc_num == 0) print*, 'Step', n, 'at time', t
+
+            CALL diagnostics(int(n/(nt/(ndiags-1))))  !WILL BREAK FOR tstart != 0
 
             !print*, 'Max all currents', maxval(abs(jx(0:nx+1, 0:ny,0:nz))), maxval(abs(jy(0:nx, 0:ny+1,0:nz))), maxval(abs(jz(0:nx, 0:ny,0:nz+1)))
         end if

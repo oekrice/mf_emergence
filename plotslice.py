@@ -105,7 +105,12 @@ start = 0
 if len(sys.argv) > 2:
     start = int(sys.argv[2])
 
-for plot_num in range(start,nsnaps,1):
+if len(sys.argv) > 3:
+    end = int(sys.argv[3])
+else:
+    end = start + 1
+
+for plot_num in range(start,end,1):
 
     if remote_flag:
         data_directory = '/nobackup/trcn27/mf3d0/%03d/' % run
@@ -229,7 +234,7 @@ for plot_num in range(start,nsnaps,1):
 
         plt.tight_layout()
         #plt.show()
-        plt.savefig('plots/a%04d' % plot_num)
+        plt.savefig('plots/a_%02d_%04d' % (run, plot_num))
         plt.close()
 
     if False:
