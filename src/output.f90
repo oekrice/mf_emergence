@@ -159,7 +159,7 @@ SUBROUTINE diagnostics(diag_num)
             if (flag1 .and. bx_slice(k-1) < 0.0 .and. bx_slice(k) > 0.0) then
                 !Centre is between these two values
                 diag_nulls(diag_num) = (zc_global(k)*abs(bx_slice(k-1)) + &
-		zc_global(k-1)*abs(bx_slice(k)))/(abs(bx_slice(k)) + abs(bx_slice(k-1)))
+zc_global(k-1)*abs(bx_slice(k)))/(abs(bx_slice(k)) + abs(bx_slice(k-1)))
                 print*, 'Flux rope found at height', diag_nulls(diag_num)
                 exit
 

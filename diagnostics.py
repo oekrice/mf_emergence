@@ -25,13 +25,18 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0]#,1,2,3,4,5,6,7,8,9]
+runs = [0,9]#,2,3,4,5,6,7,8,9]
 nsets =  len(runs)
 
+cs = plt.cm.plasma(np.linspace(0.1,0.9,nsets))
 
 for run in runs:
 
-    paras = np.loadtxt('parameters/variables%03d.txt' % run)   #variables numbered based on run number (up to 1000)
+    try:
+        paras = np.loadtxt('parameters/variables%03d.txt' % run)   #variables numbered based on run number (up to 1000)
+    except:
+        print('Run not found')
+        continue
 
     fig_width = 15#1.0*(513.11743/72)
 
@@ -114,7 +119,7 @@ for run in runs:
         toplot = toplot[toplot < 1e6]
 
         ax.set_title(diag)
-        ax.plot(ts[:len(toplot)], toplot)
+        ax.plot(ts[:len(toplot)], toplot, c= cs[plot_set_number])
 
         col_num = (col_num + 1)%ncols
         if col_num == 0:
@@ -175,7 +180,7 @@ for run in runs:
     im = ax.pcolormesh(ts[:end], zc, lf.T)
 
     ax.set_title('Run number = %d' % run)
-    plt.colorbar(im)
+    plt.colorbar(im, ax = ax)
     data.close()
     if plot_set_number == nsets-1:
         plt.tight_layout()
