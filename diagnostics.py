@@ -25,11 +25,11 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0,9]
+runs = [0]#,9]
 nsets =  len(runs)
 
 
-for run in [0,9]:
+for run in runs:
 
     paras = np.loadtxt('parameters/variables%03d.txt' % run)   #variables numbered based on run number (up to 1000)
 
@@ -92,7 +92,7 @@ for run in [0,9]:
         print('Failed to find data', diag_source)
         continue
 
-    diag_titles = ['openflux', 'sumcurrent', 'avgcurrent', 'energy']
+    diag_titles = ['openflux', 'sumcurrent', 'avgcurrent', 'energy', 'ropeheight','avglorentz']
 
     ndiags = len(diag_titles)
     nrows = int(np.sqrt(ndiags-1) + 1); ncols = int((ndiags-1)/nrows) + 1
@@ -106,7 +106,11 @@ for run in [0,9]:
     col_num = 0; row_num = 0
     for diag in diag_titles:
         ax = axs[row_num, col_num]
-        toplot = data.variables[diag][:]
+        try:
+            toplot = data.variables[diag][:]
+        except:
+            print('Data not found', diag, run)
+            continue
         toplot = toplot[toplot < 1e6]
 
         ax.set_title(diag)

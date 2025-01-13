@@ -72,9 +72,9 @@ nsnaps = int(paras[5])
 
 remote_flag = int(paras[22])
 
-xs = np.linspace(-12,12, nx+1)
-ys = np.linspace(-12,12, ny+1)
-zs = np.linspace(0,24, nz+1)
+xs = np.linspace(paras[12],paras[13], nx+1)
+ys = np.linspace(paras[14],paras[15], ny+1)
+zs = np.linspace(paras[16],paras[17], nz+1)
 
 xc = 0.5*(xs[1:] + xs[:-1])
 yc = 0.5*(ys[1:] + ys[:-1])
@@ -146,7 +146,6 @@ for plot_num in range(start,end,1):
     bx[:,1:-1,1:-1] = np.swapaxes(data.variables['bx'][:],0,2)
     by[1:-1,:,1:-1] = np.swapaxes(data.variables['by'][:],0,2)
     bz[1:-1,1:-1,:] = np.swapaxes(data.variables['bz'][:],0,2)
-
 
     jx = np.zeros((nx+2,ny+1,nz+1))
     jy = np.zeros((nx+1,ny+2,nz+1))

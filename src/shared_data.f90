@@ -48,6 +48,7 @@ MODULE shared_data
     REAL(num):: dx, dy, dz
     REAL(num):: t, dt
     REAL(num), DIMENSION(:), ALLOCATABLE :: xs, ys, zs, xc, yc, zc
+    REAL(num), DIMENSION(:), ALLOCATABLE :: xs_global, ys_global, zs_global, xc_global, yc_global, zc_global
     REAL(num):: volume, volume_global
 
     REAL(num), DIMENSION(:,:,:), ALLOCATABLE :: ax, ay, az
@@ -97,7 +98,7 @@ MODULE shared_data
     INTEGER :: bx_xface, by_xface, bz_xface, bx_xface1
     INTEGER :: bx_yface, by_yface, bz_yface, by_yface1
     INTEGER :: bx_zface, by_zface, bz_zface, bz_zface1
-    INTEGER :: b0_chunk
+    INTEGER :: b0_chunk, b0_all
     !Extras
     REAL(num), DIMENSION(:,:), ALLOCATABLE:: bz_surf_reference
     REAL(num):: nmags

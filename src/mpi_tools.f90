@@ -237,6 +237,15 @@ MODULE mpi_tools
 
         b0_chunk = mpitype
 
+        !Types for sending an entire averaged field
+
+        mpitype = MPI_DATATYPE_NULL
+        CALL MPI_TYPE_CREATE_SUBARRAY(3, (/nx_global, ny_global, nz_global/), (/nx_global,ny_global,nz_global/), (/0,0,0/), &
+            MPI_ORDER_FORTRAN, MPI_DOUBLE_PRECISION, mpitype, ierr)
+        CALL MPI_TYPE_COMMIT(mpitype, ierr)
+
+        b0_all = mpitype
+
 
 
     END SUBROUTINE mpi_create_types

@@ -113,6 +113,10 @@ SUBROUTINE allocate_arrays()
     allocate(xs(-1:nx+1)); allocate(ys(-1:ny+1)); allocate(zs(-1:nz+1))
     allocate(xc(0:nx+1)); allocate(yc(0:ny+1)); allocate(zc(0:nz+1))
 
+    allocate(xs_global(-1:nx_global+1)); allocate(ys_global(-1:ny_global+1)); allocate(zs_global(-1:nz_global+1))
+    allocate(xc_global(0:nx_global+1)); allocate(yc_global(0:ny_global+1)); allocate(zc_global(0:nz_global+1))
+
+
     !Allocate global arrays (things that could conceivably be plotted afterwards, I suppose)
     allocate(ax(0:nx+1,-1:ny+1,-1:nz+1)); allocate(ay(-1:nx+1,0:ny+1,-1:nz+1)); allocate(az(-1:nx+1,-1:ny+1,0:nz+1))
     allocate(bx(-1:nx+1,0:ny+1,0:nz+1)); allocate(by(0:nx+1,-1:ny+1,0:nz+1)); allocate(bz(0:nx+1,0:ny+1,-1:nz+1))
@@ -186,7 +190,6 @@ SUBROUTINE establish_grid()
     call try(nf90_get_var(ncid, vid, zs(0:nz), &
     start = (/z_rank*nz+1/),count = (/nz+1/)))
 
-    call try(nf90_close(ncid))
 
     xs(-1) = 2*xs(0) - xs(1); xs(nx+1) = 2*xs(nx) - xs(nx-1)
     ys(-1) = 2*ys(0) - ys(1); ys(ny+1) = 2*ys(ny) - ys(ny-1)
@@ -203,6 +206,31 @@ SUBROUTINE establish_grid()
     x0 = xs(0); x1 = xs(nx)
     y0 = ys(0); y1 = ys(ny)
     z0 = zs(0); z1 = zs(nz)
+
+    call try(nf90_inq_varid(ncid, 'xs', vid))
+    call try(nf90_get_var(ncid, vid, xs_global(0:nx_global), &
+    start = (/1/),count = (/nx_global+1/)))
+
+    call try(nf90_inq_varid(ncid, 'ys', vid))
+    call try(nf90_get_var(ncid, vid, ys_global(0:ny_global), &
+    start = (/1/),count = (/ny_global+1/)))
+
+    call try(nf90_inq_varid(ncid, 'zs', vid))
+    call try(nf90_get_var(ncid, vid, zs_global(0:nz_global), &
+    start = (/1/),count = (/nz_global+1/)))
+
+    call try(nf90_close(ncid))
+
+    xs_global(-1) = 2*xs_global(0) - xs_global(1)
+    xs_global(nx_global+1) = 2*xs_global(nx_global) - xs_global(nx_global-1)
+    ys_global(-1) = 2*ys_global(0) - ys_global(1)
+    ys_global(ny_global+1) = 2*ys_global(ny_global) - ys_global(ny_global-1)
+    zs_global(-1) = 2*zs_global(0) - zs_global(1)
+    zs_global(nz_global+1) = 2*zs_global(nz_global) - zs_global(nz_global-1)
+
+    xc_global = 0.5_num*(xs_global(-1:nx_global) + xs_global(0:nx_global+1))
+    yc_global = 0.5_num*(ys_global(-1:ny_global) + ys_global(0:ny_global+1))
+    zc_global = 0.5_num*(zs_global(-1:nz_global) + zs_global(0:nz_global+1))
 
     volume = (x1-x0)*(y1-y0)*(z1-z0)
     volume_global = (x1_global-x0_global)*(y1_global-y0_global)*(z1_global-z0_global)
