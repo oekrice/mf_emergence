@@ -87,14 +87,28 @@ MODULE mpi_tools
         do i = 0, nprocs-1
             if (proc_num == i .and. .false.) then
                 print*, proc_num, x_rank, y_rank, z_rank
-                print*, 'x', x_down, x_up
-                print*, 'y', y_down, y_up
-                print*, 'z', z_down, z_up
+                !print*, 'x', x_down, x_up
+                !print*, 'y', y_down, y_up
+                !print*, 'z', z_down, z_up
                 print*, '______________________________'
             end if
             call MPI_BARRIER(comm, ierr)
         end do
 
+        !Distribute MPI rank information, for snazzy diagnostics
+        allocate(allranks(0:nprocs-1, 0:2))
+
+        do i = 0, nprocs-1
+        if (i == proc_num) then
+        call MPI_ALLREDUCE((/x_rank, y_rank, z_rank/),allranks(i,0:2),3,MPI_INTEGER,MPI_SUM,comm,ierr)
+        else
+        call MPI_ALLREDUCE((/0, 0, 0/),allranks(i,0:2),3,MPI_INTEGER,MPI_SUM,comm,ierr)
+        end if
+        end do
+
+        do i = 0, nprocs-1
+            if (proc_num == 0) print*, 'allranks', i, allranks(i,0:2)
+        end do
         return
     END SUBROUTINE start_mpi
 
@@ -231,7 +245,7 @@ MODULE mpi_tools
         !Types for sending an entire chunk of averaged field
 
         mpitype = MPI_DATATYPE_NULL
-        CALL MPI_TYPE_CREATE_SUBARRAY(3, (/nx_global, ny_global, nz_global/), (/nx,ny,nz/), (/0,0,0/), &
+        CALL MPI_TYPE_CREATE_SUBARRAY(3, (/nx_global,ny_global,nz_global/), (/nx,ny,nz/), (/0,0,0/), &
             MPI_ORDER_FORTRAN, MPI_DOUBLE_PRECISION, mpitype, ierr)
         CALL MPI_TYPE_COMMIT(mpitype, ierr)
 

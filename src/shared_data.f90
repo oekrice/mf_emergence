@@ -100,6 +100,7 @@ MODULE shared_data
     INTEGER :: bx_yface, by_yface, bz_yface, by_yface1
     INTEGER :: bx_zface, by_zface, bz_zface, bz_zface1
     INTEGER :: b0_chunk, b0_all
+    INTEGER, DIMENSION(:,:), ALLOCATABLE:: allranks
     !Extras
     REAL(num), DIMENSION(:,:), ALLOCATABLE:: bz_surf_reference
     REAL(num):: nmags

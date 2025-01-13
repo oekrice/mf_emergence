@@ -16,7 +16,7 @@ SUBROUTINE diagnostics(diag_num)
     !Calculates some diagnostics and saves to netcdf file as for the triangle code, which was fairly neat (if i say so myself...). Should make for easy pythonning
     IMPLICIT NONE
     INTEGER:: diag_num, proc_test
-    INTEGER:: i,j,k
+    INTEGER:: i,j,k, xrank_in, yrank_in, zrank_in
     LOGICAL:: flag1
     character(len=100):: filename
 
@@ -127,16 +127,29 @@ SUBROUTINE diagnostics(diag_num)
 
     l0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)) = l0(1:nx,1:ny,1:nz)
 
-    !Doing this one element at a time is EXTEMELY silly but it is the only thing which seems to work...
 
-    do i = 1, nx_global
-    do j = 1, ny_global
-    do k = 1, nz_global
-        call MPI_ALLREDUCE(bx0_global(i,j,k),bx0_global(i,j,k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
-        call MPI_ALLREDUCE(l0_global(i,j,k),l0_global(i,j,k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
+    do proc_test = 1, nprocs-1
+        if (proc_num == proc_test) then
+            !print*, 'Sending from', proc_test
+            call mpi_send(bx0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)), 1, b0_chunk, 0, 0, comm, ierr)
+            !print*, 'Sent from', proc_test
+        end if
+        if (proc_num == 0) then
+            xrank_in = allranks(proc_test,0); yrank_in = allranks(proc_test,1); zrank_in = allranks(proc_test,2)
+            !print*, 'Receiving from', proc_test, xrank_in, yrank_in, zrank_in
+            !print*, nx*(xrank_in+1), ny*(yrank_in+1), nz*(zrank_in+1)
+            call mpi_recv(bx0_global(1+nx*xrank_in:nx*(xrank_in+1), 1+ny*yrank_in:ny*(yrank_in+1), 1+nz*zrank_in:nz*(zrank_in+1)), 1, b0_chunk, proc_test, 0, comm, MPI_STATUS_IGNORE, ierr)
+
+            !print*, 'Received from', proc_test, xrank_in, yrank_in, zrank_in
+            !print*, shape(bx0), shape(bx0_global)
+        end if
+        call MPI_BARRIER(comm, ierr)
+
     end do
-    end do
-    end do
+
+
+
+
 
     if (proc_num == 0) then
         !DO ROPE HEIGHT
