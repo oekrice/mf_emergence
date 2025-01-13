@@ -25,7 +25,7 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0,9]
+runs = [0,1,2,3,4,5,6,7,8,9]
 nsets =  len(runs)
 
 
@@ -84,7 +84,7 @@ for run in runs:
 
     if hflag == 0:
         data_source = '/extra/tmp/mf3d/%03d/' % run
-        diag_source = './diagnostics/run%02d.nc' % run
+    diag_source = './diagnostics/run%02d.nc' % run
 
     try:
         data = netcdf_file(diag_source, 'r', mmap=False)
@@ -126,7 +126,7 @@ for run in runs:
 
     if plot_set_number == nsets-1:
         plt.tight_layout()
-        plt.close()
+        plt.show()
 
     plot_set_number += 1
 
