@@ -182,7 +182,7 @@ class trace_fieldlines():
             p.camera.focal_point = (0,0,0)
 
 
-        p.show(screenshot='./plots/b%04d.png' % self.save_number, window_size = (1000,1000))
+        p.show(screenshot='./plots/%02d_%04d.png' % (self.run, self.save_number), window_size = (1000,1000))
         print('Plot saved to file ./plots/b%04d.png' % self.save_number)
         #p.show(screenshot='difftestb%04d.png' % self.save_number, window_size = (1000,1000))
 
@@ -246,7 +246,7 @@ class trace_fieldlines():
 
         #p.show(screenshot='plots/b%04d.png' % self.save_number, window_size = (1000,1000))
         #print('Plot saved to file plots/b%04d.png' % self.save_number)
-        p.show(screenshot='plots/b%04d.png' % self.save_number, window_size = (1000,1000))
+        p.show(screenshot='plots/%02d_%04d.png' % (self.run, self.save_number), window_size = (1000,1000))
         p.close()
 
     def set_starts(self):
@@ -351,9 +351,10 @@ else:
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
 set_num = int(sys.argv[2])
 snap_min = 0 + set_num
-for snap in range(snap_min, snap_max):
-    print('Plot number', snap_min)
-    trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
-    snap_min = snap_min + nset
+for run in range(10):
+    for snap in range(snap_min, snap_max):
+    	print('Run number', run, 'Plot number', snap_min)
+    	trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
+    	#snap_min = snap_min + nset
 
 #trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
