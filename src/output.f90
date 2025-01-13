@@ -20,7 +20,7 @@ SUBROUTINE diagnostics(diag_num)
     LOGICAL:: flag1
     character(len=100):: filename
 
-    integer:: id_1, id_2, id_3, id_4, id_5, id_6, id_7, ncid, nd_id
+    integer:: id_1, id_2, id_3, id_4, id_5, id_6, id_7, id_8, ncid, nd_id, nz_id
 
     real(num), dimension(:,:):: jx0(1:nx,1:ny,1:nz),jy0(1:nx,1:ny,1:nz),jz0(1:nx,1:ny,1:nz) !
     real(num), dimension(:,:):: j0(1:nx,1:ny,1:nz)
@@ -38,8 +38,9 @@ SUBROUTINE diagnostics(diag_num)
     !Allocate space for the slice, using the global coordinates
     real(num), dimension(:,:,:):: bz0_global(1:nx_global, 1:ny_global, 1:nz_global)
     real(num), dimension(:,:,:):: bx0_global(1:nx_global, 1:ny_global, 1:nz_global)
+    real(num), dimension(:,:,:):: l0_global(1:nx_global, 1:ny_global, 1:nz_global)
 
-    real(num), dimension(:):: bx_slice(1:nz_global)
+    real(num), dimension(:):: bx_slice(1:nz_global), lf_heights(1:nz_global)
 
     !Allocate diagnostic arrays
     if (diag_num == 0) then
@@ -48,7 +49,7 @@ SUBROUTINE diagnostics(diag_num)
         allocate(diag_sume(0:ndiags-1))
         allocate(diag_avgj(0:ndiags-1)); allocate(diag_energy(0:ndiags-1))
         allocate(diag_maxlorentz(0:ndiags-1)); allocate(diag_avglorentz(0:ndiags-1))
-        allocate(diag_nulls(0:ndiags-1))
+        allocate(diag_nulls(0:ndiags-1)); allocate(diag_lfheights(0:ndiags-1, 1:nz_global))
         diag_oflux = 1e6; diag_sumj = 1e6; diag_avgj = 1e6; diag_energy = 1e6
         diag_maxlorentz = 1e6; diag_avglorentz = 1e6; diag_time = 1e6; diag_nulls = 1e6
     end if
@@ -124,7 +125,7 @@ SUBROUTINE diagnostics(diag_num)
 
     bz0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)) = bz0(1:nx,1:ny,1:nz)
 
-    !print*, 'a', proc_num, sum(bx0_global)
+    l0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)) = l0(1:nx,1:ny,1:nz)
 
     !Doing this one element at a time is EXTEMELY silly but it is the only thing which seems to work...
 
@@ -132,12 +133,13 @@ SUBROUTINE diagnostics(diag_num)
     do j = 1, ny_global
     do k = 1, nz_global
         call MPI_ALLREDUCE(bx0_global(i,j,k),bx0_global(i,j,k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
+        call MPI_ALLREDUCE(l0_global(i,j,k),l0_global(i,j,k),1,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
     end do
     end do
     end do
-
 
     if (proc_num == 0) then
+        !DO ROPE HEIGHT
         !Take the slice of relevance
         bx_slice(1:nz_global) = bx0_global(nx_global/2, ny_global/2, 1:nz_global)
         !Centre of the rope will be the point at which (working down) positive will go to negative
@@ -153,22 +155,12 @@ SUBROUTINE diagnostics(diag_num)
 
             end if
         end do
-    end if
-    !print*, 'b', proc_num, sum(bx0_global)
+        !DO LORENTZ FORCE SLICES
+        do k = 1, nx_global
+            diag_lfheights(diag_num, k) = sum(l0_global(1:nx,1:ny,k))
+        end do
 
-    !do proc_test = 1, nprocs-1
-    !     if (proc_num == proc_test) then
-    !         print*, 'Sending from', proc_test
-!             call mpi_send(bz0(1:nx,1:ny,1:nz), 1, b0_chunk, 0, 0, comm, ierr)
-    !        print*, 'Sent from', proc_test
-    !     end if
-     !end do
-     !do proc_test = 1, nprocs-1
-!         !Need coordinates of that process. Don't know them...
-    !     if (proc_num == 0) then
-             !call mpi_recv(bz0_global(1+nx*x_rank:nx*(x_rank+1), 1+ny*y_rank:ny*(y_rank+1), 1+nz*z_rank:nz*(z_rank+1)), 1, b0_chunk, proc_test, 0, comm, MPI_STATUS_IGNORE, ierr)
-     !    end if
-    ! end do
+    end if
 
     call MPI_BARRIER(comm, ierr)
 
@@ -194,6 +186,8 @@ SUBROUTINE diagnostics(diag_num)
     !Write to diagnostics file, using netcdf
     call try(nf90_create(trim(filename), nf90_clobber, ncid))
     call try(nf90_def_dim(ncid, 'ndiags', ndiags, nd_id))  !Make up fake dimensions here
+    call try(nf90_def_dim(ncid, 'nz', nz_global, nz_id))  !Make up fake dimensions here
+
 
     call try(nf90_def_var(ncid, 'time', nf90_double, (/nd_id/), id_1))
     call try(nf90_def_var(ncid, 'openflux', nf90_double, (/nd_id/), id_2))
@@ -202,6 +196,7 @@ SUBROUTINE diagnostics(diag_num)
     call try(nf90_def_var(ncid, 'energy', nf90_double, (/nd_id/), id_5))
     call try(nf90_def_var(ncid, 'ropeheight', nf90_double, (/nd_id/), id_6))
     call try(nf90_def_var(ncid, 'avglorentz', nf90_double, (/nd_id/), id_7))
+    call try(nf90_def_var(ncid, 'lfheights', nf90_double, (/nd_id, nz_id/), id_8))
 
     call try(nf90_enddef(ncid))
 
@@ -212,9 +207,7 @@ SUBROUTINE diagnostics(diag_num)
     call try(nf90_put_var(ncid, id_5, diag_energy))
     call try(nf90_put_var(ncid, id_6, diag_nulls))
     call try(nf90_put_var(ncid, id_7, diag_avglorentz))
-
-    !call try(nf90_put_var(ncid, id_6, diag_avglorentz))
-    !call try(nf90_put_var(ncid, id_7, diag_maxlorentz))
+    call try(nf90_put_var(ncid, id_8, diag_lfheights))
 
     call try(nf90_close(ncid))
     end if

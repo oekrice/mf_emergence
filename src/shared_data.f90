@@ -88,6 +88,7 @@ MODULE shared_data
     REAL(num), DIMENSION(:), ALLOCATABLE:: diag_maxlorentz
     REAL(num), DIMENSION(:), ALLOCATABLE:: diag_avglorentz
     REAL(num), DIMENSION(:), ALLOCATABLE:: diag_nulls
+    REAL(num), DIMENSION(:,:), ALLOCATABLE:: diag_lfheights
 
     !MPI
     INTEGER:: comm, ierr, MPI_loc(3), mpitag = 1
