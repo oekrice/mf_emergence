@@ -348,6 +348,7 @@ else:
     snap_max = snap_min + 1
 
 
+print('Run', run, snap_min, snap_max)
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
 set_num = int(sys.argv[2])
 snap_min = 0 + set_num

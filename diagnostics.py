@@ -131,6 +131,7 @@ for run in runs:
 
     if plot_set_number == nsets-1:
         plt.tight_layout()
+        plt.savefig('diagnostics.png')
         plt.show()
 
     plot_set_number += 1
