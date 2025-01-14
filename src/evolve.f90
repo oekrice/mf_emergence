@@ -209,7 +209,7 @@ SUBROUTINE import_surface_electric(flow_number, dt_fact)
 
     if (flow_number < 499) then
         write (flow_id,'(I4.4)') flow_number
-        write (run_id,'(I3.3)') int(run_number)
+        write (run_id,'(I3.3)') init_number
 
         electric_filename = trim("./efields/"//trim(run_id)//'/'//trim(flow_id)//'.nc')
 

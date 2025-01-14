@@ -24,6 +24,7 @@ MODULE shared_data
     REAL(num):: eta0
     REAL(num):: nu0
     REAL(num):: tstart
+    INTEGER:: init_number
 
     !Other parameters hard-coded into the main.f90 file
     REAL(num):: x0_global, x0

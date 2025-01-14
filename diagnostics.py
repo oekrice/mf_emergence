@@ -25,7 +25,7 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0,9]#,2,3,4,5,6,7,8,9]
+runs = [0,1,2,3,4,5,6,7,8,9]
 nsets =  len(runs)
 
 cs = plt.cm.plasma(np.linspace(0.1,0.9,nsets))
@@ -168,6 +168,7 @@ for run in runs:
 
     lf = data.variables['lfheights'][:].T
 
+    #print(run, np.sum(lf))
     end = len(ts[ts < 1e6])
     lf = lf[:end,:]
 
@@ -182,6 +183,7 @@ for run in runs:
     ax.set_title('Run number = %d' % run)
     plt.colorbar(im, ax = ax)
     data.close()
+
     if plot_set_number == nsets-1:
         plt.tight_layout()
         plt.show()

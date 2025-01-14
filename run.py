@@ -58,6 +58,8 @@ x0 = -130.0; x1 = 130.0
 y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
+init_number = 0
+
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
 decay_type = 3  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
@@ -175,6 +177,8 @@ variables[24] = backfield_angle
 variables[25] = nmags
 variables[26] = tstart
 
+variables[27] = init_number #Code to give the magnetograms and electric fields so they don't need to be done every time'
+
 #SOME FOLDER ADMIN
 #-------------------------------------
 
@@ -240,10 +244,10 @@ if True:
 
     bz = np.swapaxes(data.variables['bz'][:],0,1)
 
-    init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % run)
+    init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % init_number)
 
     omega = 0.015#np.linspace(0.0,0.05,10)[run]
-    #compute_electrics(run, omega)
+    compute_electrics(run, init_number, omega= omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0
 

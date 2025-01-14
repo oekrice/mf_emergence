@@ -102,6 +102,7 @@ SUBROUTINE read_parameters()
     nmags = variables(25)
     tstart = variables(26)
 
+    init_number = int(variables(27))
 
 END SUBROUTINE read_parameters
 
@@ -157,11 +158,11 @@ SUBROUTINE establish_grid()
     INTEGER:: ncid, vid
 
     if (run_number < 10) then
-      write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(run_number), '.nc'
+      write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(init_number), '.nc'
     else if (run_number < 100) then
-      write (init_filename, "(A12, A1, I2, A3)") './inits/init', '0', int(run_number), '.nc'
+      write (init_filename, "(A12, A1, I2, A3)") './inits/init', '0', int(init_number), '.nc'
     else
-      write (init_filename, "(A12, I3, A3)") './inits/init', int(run_number), '.nc'
+      write (init_filename, "(A12, I3, A3)") './inits/init', int(init_number), '.nc'
     end if
 
     call try(nf90_open(trim(init_filename), nf90_nowrite, ncid))
