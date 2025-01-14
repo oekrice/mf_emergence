@@ -115,7 +115,7 @@ class trace_fieldlines():
             #self.plot_base = self.flh_photo
             z_photo = int((self.nz)*(10.0 - self.z0)/(self.z1 - self.z0))
 
-            self.plot_base = self.bz[:,:,z_photo]
+            self.plot_base = self.bz[:,:,0]
             #self.plot_base = np.ones((self.nx, self.ny))
             #Find start points
             self.set_starts()

@@ -9,7 +9,7 @@ snap = 80
 
 comps = []
 for ri, run in enumerate(runs):
-    fname = '/extra/tmp/trcn27/mf3d/%03d/%04d.nc' % (run, snap)
+    fname = '/nobackup/trcn27/mf3d0/%03d/%04d.nc' % (run, snap)
 
     data = netcdf_file(fname, 'r', mmap=False)
 
