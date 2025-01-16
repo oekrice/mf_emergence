@@ -169,10 +169,10 @@ class compute_inplane_helicity():
                 else:
                     h_all[run].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
 
+            plt.plot(h_all[ri], label = ('Run %d' % run))
+
         plt.plot(h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 
-        for run in runs[1:]:
-            plt.plot(h_all[ri-1], label = ('Run %d' % run))
 
         plt.legend()
 

@@ -266,6 +266,7 @@ class compute_electrics():
 
                 D = omega*bf
 
+                print('OMEGA', omega)
                 # plt.pcolormesh(bf)
                 # plt.colorbar()
                 # plt.show()
