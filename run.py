@@ -43,9 +43,9 @@ eta0 = 0.0
 tmax = 400.0
 tstart = 0.0
 
-nx = 128
-ny = 128
-nz = 128
+nx = 64
+ny = 64
+nz = 64
 
 nplots = 100
 ndiags = 400
@@ -62,7 +62,7 @@ init_number = 0
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
-decay_type = 3  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
+decay_type = 0  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
 
 if decay_type == 0: #No pressure
     zstar = 0.0; a = 0.0; b = 0.0; deltaz = 0.0
@@ -209,6 +209,17 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
+if not os.path.isdir('./mf_mags/'):
+    os.mkdir('./mf_mags/')
+
+#Make magnetogram filenames if necessary
+if os.path.isdir('./mf_mags/%03d/' % run):
+    for i in range(1000):
+        if os.path.isfile('./mf_mags/%03d/%04d.nc' % (run, i)):
+            os.remove('./mf_mags/%03d/%04d.nc' % (run, i))
+else:
+    os.mkdir('./mf_mags/%03d/' % run)
+
 np.savetxt('parameters/variables%03d.txt' % run, variables)   #variables numbered based on run number (up to 1000)
 
 #Create initial condition using new init.py (potential field with arbitrary lower boundary and domain dimensions)
@@ -246,7 +257,7 @@ if True:
 
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % init_number)
 
-    omega = 0.015#np.linspace(0.0,0.05,10)[run]
+    omega = np.linspace(0.0,0.1,10)[run]
     compute_electrics(run, init_number, omega= omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0

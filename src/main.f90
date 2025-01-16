@@ -87,6 +87,7 @@ PROGRAM main
             !if (proc_num == 0) print*, t, int(n/mag_interval)
             !if (proc_num == 0) print*, t, int(n/mag_interval), 1.0_num/tmags
             CALL import_surface_electric(int(n/mag_interval), 1.0_num/tmags)
+            CALL export_magnetogram(int(n/mag_interval) - 1)
             !print*, 'Importing surface electric number', int(n/(nt/(nmags-1)))
             !if (proc_num == 0) print*, 'Imported', int(n/(nt/(nmags-1))), 'efield', nmags, n, nt
         end if

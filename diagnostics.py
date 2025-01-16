@@ -119,7 +119,7 @@ for run in runs:
         toplot = toplot[toplot < 1e6]
 
         ax.set_title(diag)
-        ax.plot(ts[:len(toplot)], toplot, c= cs[plot_set_number])
+        ax.plot(ts[:len(toplot)], toplot, c = cs[plot_set_number])
 
         col_num = (col_num + 1)%ncols
         if col_num == 0:
@@ -132,68 +132,116 @@ for run in runs:
     if plot_set_number == nsets-1:
         plt.tight_layout()
         plt.savefig('diagnostics.png')
-        plt.show()
+        plt.close()
 
     plot_set_number += 1
 
-#Plot Lorentz Forces (colormesh maybe?!?, Alice is sometimes wise...)
-plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-row_num = 0; col_num = 0
-nplots = len(runs)
-nrows = int(np.sqrt(nplots) + 1); ncols = int((nplots-1)/nrows) + 1
+if True:
+    #Plot Lorentz force for given set of snapshots, jsut based on the average over a horizontal slice (no need to be fancy)
+    if not os.path.exists('lorentzplots'):
+        os.mkdir('lorentzplots')
 
-for run in runs:
+    nsnaps = 399
+    for snap in range(nsnaps):
+        print('Snap number ', snap)
+        allmax = 0.0
+        for ri, run in enumerate(runs):
+            if ri == 0:
+                fig, axs = plt.subplots(1, 1)
 
-    #List diagnostics as a big array to simplify moving around the plots and things
-    #Could theoretically integrate FLH stuff to this later. Maaayyybbeee.
+            diag_source = './diagnostics/run%02d.nc' % run
 
-    if plot_set_number == 0:
-        #Create subplots
-        fig, axs = plt.subplots(nrows, ncols)
+            try:
+                data = netcdf_file(diag_source, 'r', mmap=False)
+            except:
+                print('Failed to find data', diag_source)
+                continue
 
-    if np.ndim(axs) > 1:
-        ax = axs[row_num, col_num]
-    else:
-        ax = axs[row_num]
+            lf = data.variables['lfheights'][:].T
 
-    print(nrows, ncols)
-    if hflag == 0:
-        data_source = '/extra/tmp/mf3d/%03d/' % run
+            #print(run, np.sum(lf))
+            end = len(ts[ts < 1e6])
+            lf = lf[:end,:]
+
+            allmax = max(allmax, np.max(lf[:end,:]))
+
+            plt.plot(lf[snap,:], c = cs[run], label = run)
+
+            if ri == len(runs) - 1:
+                plt.title('t = %02d' % data.variables['time'][snap])
+                plt.legend()
+                plt.ylim(0.0, allmax*1.2)
+
+                plt.tight_layout()
+                plt.savefig('lorentzplots/%03d.png' % snap)
+                plt.close()
+
+        if snap == nsnaps-1:
+            #Do the video
+            os.system('ffmpeg -y -framerate 20 -i ./lorentzplots/%03d.png -b:v 10M lorentz.mp4')
+
+            if True:
+                os.system('rm -r lorentzplots')
+
+if False:
+    #Plot Lorentz Forces (colormesh maybe?!?, Alice is sometimes wise...)
+    plot_set_number = 0  #Do this now to make things neat. Yes. Good.
+    row_num = 0; col_num = 0
+    nplots = len(runs)
+    nrows = int(np.sqrt(nplots) + 1); ncols = int((nplots-1)/nrows) + 1
+
+    for run in runs:
+
+        #List diagnostics as a big array to simplify moving around the plots and things
+        #Could theoretically integrate FLH stuff to this later. Maaayyybbeee.
+
+        if plot_set_number == 0:
+            #Create subplots
+            fig, axs = plt.subplots(nrows, ncols)
+
+        if np.ndim(axs) > 1:
+            ax = axs[row_num, col_num]
+        else:
+            ax = axs[row_num]
+
+        print(nrows, ncols)
+        if hflag == 0:
+            data_source = '/extra/tmp/mf3d/%03d/' % run
         diag_source = './diagnostics/run%02d.nc' % run
 
-    try:
-        data = netcdf_file(diag_source, 'r', mmap=False)
-    except:
-        print('Failed to find data', diag_source)
-        continue
+        try:
+            data = netcdf_file(diag_source, 'r', mmap=False)
+        except:
+            print('Failed to find data', diag_source)
+            continue
 
-    lf = data.variables['lfheights'][:].T
+        lf = data.variables['lfheights'][:].T
 
-    #print(run, np.sum(lf))
-    end = len(ts[ts < 1e6])
-    lf = lf[:end,:]
+        #print(run, np.sum(lf))
+        end = len(ts[ts < 1e6])
+        lf = lf[:end,:]
 
-    #Various variations that it might be worthwhile plotting.
-    #Could normalise based on the mean at each time?
+        #Various variations that it might be worthwhile plotting.
+        #Could normalise based on the mean at each time?
 
-    #for n in range(end):
-    #    lf[n,:] = lf[n,:]/np.max(lf[n,:])
+        #for n in range(end):
+        #    lf[n,:] = lf[n,:]/np.max(lf[n,:])
 
-    im = ax.pcolormesh(ts[:end], zc, lf.T)
+        im = ax.pcolormesh(ts[:end], zc, lf.T)
 
-    ax.set_title('Run number = %d' % run)
-    plt.colorbar(im, ax = ax)
-    data.close()
+        ax.set_title('Run number = %d' % run)
+        plt.colorbar(im, ax = ax)
+        data.close()
 
-    if plot_set_number == nsets-1:
-        plt.tight_layout()
-        plt.show()
+        if plot_set_number == nsets-1:
+            plt.tight_layout()
+            plt.show()
 
-    col_num = (col_num + 1)%ncols
-    if col_num == 0:
-        row_num += 1
+        col_num = (col_num + 1)%ncols
+        if col_num == 0:
+            row_num += 1
 
-    plot_set_number += 1
+        plot_set_number += 1
 
 
 

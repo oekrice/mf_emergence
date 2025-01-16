@@ -42,10 +42,10 @@ def getAFastSingle(b,ncells,spacing):
     B0fx = np.zeros(b.shape[2],dtype=np.complex128)
     B0fy = np.zeros(b.shape[2],dtype=np.complex128)
     aftx = np.zeros([b.shape[0],b.shape[1],b.shape[2]],dtype=np.complex128)
-    afty  =np.zeros([b.shape[0],b.shape[1],b.shape[2]],dtype=np.complex128)
+    afty = np.zeros([b.shape[0],b.shape[1],b.shape[2]],dtype=np.complex128)
     aftz = np.zeros([b.shape[0],b.shape[1],b.shape[2]],dtype=np.complex128)
     for i in range(b.shape[2]):
-        fbx = fft2(b[:,:,i,0]); fby =fft2(b[:,:,i,1]); fbz = fft2(b[:,:,i,2])
+        fbx = fft2(b[:,:,i,0]); fby = fft2(b[:,:,i,1]); fbz = fft2(b[:,:,i,2])
         #set the zero element of the transform for the final vertical part
         B0fx[i] = fbx[0][0]
         B0fy[i] = fby[0][0]

@@ -350,6 +350,77 @@ SUBROUTINE save_snap(snap_num)
 
 END SUBROUTINE save_snap
 
+SUBROUTINE export_magnetogram(mag_num)
+
+    CHARACTER(LEN =64):: mag_filename
+    INTEGER:: mag_num, proc_write
+    INTEGER:: ncid, vid
+    INTEGER:: xs_id, ys_id
+    INTEGER:: xc_id, yc_id
+    INTEGER:: bx_id, by_id, bz_id
+    CHARACTER(LEN=4):: mag_id, run_id
+
+    !Make magnetogram filename
+    write (mag_id,'(I4.4)') mag_num
+    write (run_id,'(I3.3)') int(run_number)
+
+    mag_filename = trim('./mf_mags/'//trim(run_id)//'/'//trim(mag_id)//'.nc')
+
+    if (proc_num == 0) then
+    call try(nf90_create(trim(mag_filename), nf90_clobber, ncid))
+
+    call try(nf90_def_dim(ncid, 'xs', nx_global+1, xs_id))
+    call try(nf90_def_dim(ncid, 'ys', ny_global+1, ys_id))
+
+    call try(nf90_def_dim(ncid, 'xc', nx_global, xc_id))
+    call try(nf90_def_dim(ncid, 'yc', ny_global, yc_id))
+
+    call try(nf90_def_var(ncid, 'bx', nf90_double, (/xs_id ,yc_id/), bx_id))
+    call try(nf90_def_var(ncid, 'by', nf90_double, (/xc_id ,ys_id/), by_id))
+    call try(nf90_def_var(ncid, 'bz', nf90_double, (/xc_id ,yc_id/), bz_id))
+
+    call try(nf90_enddef(ncid))
+    call try(nf90_close(ncid))
+
+    end if
+    call MPI_BARRIER(comm,ierr)
+
+    !Each process writes data in turn
+
+    do proc_write = 0 ,nprocs-1
+        call MPI_BARRIER(comm,ierr)
+
+        if (proc_num == proc_write .and. z_down < 0) then   !Make sure it's definitely at the bottom
+            call try(nf90_open(trim(mag_filename), nf90_write, ncid))
+
+            call try(nf90_inq_varid(ncid, 'bx', vid))
+            call try(nf90_put_var(ncid, vid, 0.5_num*(bx(0:nx,1:ny,0) + bx(0:nx,1:ny,1)), &
+            start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx+1,ny/)))
+
+            call try(nf90_inq_varid(ncid, 'by', vid))
+            call try(nf90_put_var(ncid, vid, 0.5_num*(by(1:nx,0:ny,0) + by(1:nx,0:ny,1)), &
+            start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny+1/)))
+
+            call try(nf90_inq_varid(ncid, 'bz', vid))
+            call try(nf90_put_var(ncid, vid, bz(1:nx,1:ny,0), &
+            start = (/x_rank*nx+1,y_rank*ny+1/),count = (/nx,ny/)))
+
+            call try(nf90_close(ncid))
+
+        end if
+        call MPI_BARRIER(comm,ierr)
+
+    end do
+
+
+    call mpi_barrier(comm, ierr)
+    if (proc_num == 0) print*, 'Saved magnetogram number', mag_num, ' at time', t, 'to file ', mag_filename
+
+    return
+
+
+END SUBROUTINE export_magnetogram
+
 
 !*******************************************************************************
 END MODULE output
