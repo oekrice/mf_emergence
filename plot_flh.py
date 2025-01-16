@@ -103,7 +103,7 @@ class get_flh():
             axs[0,0].set_title('FLH')
             plt.colorbar(im ,ax = axs[0,0])
 
-            im = axs[1,0].pcolormesh(self.flh_Bz)
+            im = axs[1,0].pcolormesh(np.abs(self.flh_Bz))
             axs[1,0].set_title('Weighted FLH')
             plt.colorbar(im,ax = axs[1,0])
 
@@ -116,6 +116,7 @@ class get_flh():
             plt.colorbar(im,ax = axs[1,1])
 
             plt.suptitle('Run ' + str(run) + ', plot ' + str(self.snap))
+            plt.savefig('./plots/flh%02d_%04d.png' % ( run, self.snap))
             plt.show()
 
     def plot_vista(self):
