@@ -257,14 +257,14 @@ class compute_electrics():
         
             #Define distribution of the divergence of the electric field. 
             #Following Cheung and De Rosa, just proportional to the vertical field
-            if True:   #'Twist' proportional to magnetic field
+            if False:   #'Twist' proportional to magnetic field
                 X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
 
                 bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)
 
                 bf = bf_fn((X,Y))   #Difference now interpolated to the new grid
 
-                D = omega*(bf)   #Distribution looks more accuate with this negative maybe
+                D = omega*(bf)
 
                 #print('OMEGA', omega)
                 # plt.pcolormesh(bf)

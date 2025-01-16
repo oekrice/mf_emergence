@@ -43,9 +43,9 @@ eta0 = 0.0
 tmax = 400.0
 tstart = 0.0
 
-nx = 96
-ny = 96
-nz = 96
+nx = 64
+ny = 64
+nz = 64
 
 nplots = 100
 ndiags = 400
@@ -58,7 +58,8 @@ x0 = -130.0; x1 = 130.0
 y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
-init_number = 0
+init_number = run
+omega = [-0.015,0.0,0.015][run]
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
@@ -179,6 +180,7 @@ variables[26] = tstart
 
 variables[27] = init_number #Code to give the magnetograms and electric fields so they don't need to be done every time'
 
+variables[28] = omega   #Just for plotting and things. Not used in the Fortran
 #SOME FOLDER ADMIN
 #-------------------------------------
 
@@ -257,7 +259,6 @@ if True:
 
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % init_number)
 
-    omega = np.linspace(0.0,0.02,10)[run]
     compute_electrics(run, init_number, omega= omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0

@@ -63,6 +63,10 @@ class compute_inplane_helicity():
 
         for ri, run in enumerate(runs):
 
+            if run > 0:
+                paras = np.loadtxt('parameters/variables%03d.txt' % run)
+                omega = paras[28]
+
             for snap in range(0,500,10):
 
                 if (snap%10) == 0:
@@ -183,16 +187,16 @@ class compute_inplane_helicity():
                         row = ri - 1
 
                     ax = axs[ri, 0]
-                    im = ax.pcolormesh(bx.T)
+                    im = ax.pcolormesh(bx.T, cmap = 'seismic', vmax = np.max(np.abs(bx)), vmin = -np.max(np.abs(bx)))
                     plt.colorbar(im, ax = ax)
                     ax = axs[ri, 1]
-                    axs[ri,1].pcolormesh(by.T)
+                    im =axs[ri,1].pcolormesh(by.T, cmap = 'seismic', vmax = np.max(np.abs(by)), vmin = -np.max(np.abs(by)))
                     plt.colorbar(im, ax = ax)
                     ax = axs[ri, 2]
-                    axs[ri,2].pcolormesh(bz.T)
+                    im = axs[ri,2].pcolormesh(bz.T, cmap = 'seismic', vmax = np.max(np.abs(bz)), vmin = -np.max(np.abs(bz)))
                     plt.colorbar(im, ax = ax)
                     ax = axs[ri, 3]
-                    axs[ri,3].pcolormesh(hfield.T)
+                    im = axs[ri,3].pcolormesh(hfield.T, cmap = 'seismic', vmax = np.max(np.abs(hfield)), vmin = -np.max(np.abs(hfield)))
                     plt.colorbar(im, ax = ax)
 
                     if ri == len(runs) - 1:
@@ -207,7 +211,7 @@ class compute_inplane_helicity():
                     h_all[ri-1].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
 
         for ri in range(len(runs)-1):
-            plt.plot(h_all[ri], label = ('Run %d' % runs[ri + 1]))
+            plt.plot(h_all[ri], label = ('Omega = ' +  str(omega)))
 
         plt.plot(h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 
