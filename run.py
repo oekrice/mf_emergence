@@ -43,9 +43,9 @@ eta0 = 0.0
 tmax = 400.0
 tstart = 0.0
 
-nx = 64
-ny = 64
-nz = 64
+nx = 96
+ny = 96
+nz = 96
 
 nplots = 100
 ndiags = 400
@@ -257,7 +257,7 @@ if True:
 
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % init_number)
 
-    omega = np.linspace(0.0,0.1,10)[run]
+    omega = np.linspace(0.0,0.02,10)[run]
     compute_electrics(run, init_number, omega= omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0

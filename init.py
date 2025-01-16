@@ -9,6 +9,7 @@ from scipy.interpolate import RegularGridInterpolator
 class compute_initial_condition():
     def __init__(self, grid, lbound_fn, run, background_strength = 0.0, background_angle = 0.0, boundary_error_limit = 0.0, init_filename = '/inits/init000.nc'):
         #use the same grid notation as in the proper diagnostic calculator, even though it can be bodged for now
+
         print('Calculating initial potential field for given boundary function...')
         self.xs = np.linspace(grid.x0,grid.x1,grid.nx+1)
         self.ys = np.linspace(grid.y0,grid.y1,grid.ny+1)
@@ -78,7 +79,7 @@ class compute_initial_condition():
 
             #Need to interpolate onto a new grid
 
-            X, Y = np.meshgrid(self.xc[1:-1], self.yc[1:-1])
+            X, Y = np.meshgrid(self.xc[1:-1], self.yc[1:-1], indexing = 'ij')
 
             nx_import = np.shape(lbound_fn)[0]; ny_import = np.shape(lbound_fn)[1]
 
@@ -102,8 +103,6 @@ class compute_initial_condition():
 
             self.xbasis[:,0] = self.xbasis[:,1]; self.xbasis[:,-1] = self.xbasis[:,-2]
             self.ybasis[:,0] = self.ybasis[:,1]; self.ybasis[:,-1] = self.ybasis[:,-2]
-
-            print('Basis functions calculated.')
 
             print('Starting "Fourier" Transform')
             error = 1e6

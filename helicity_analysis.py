@@ -54,6 +54,7 @@ class compute_inplane_helicity():
     #Requires the script from Chris' flt code
     def __init__(self, run_min, run_max):
 
+        grid = Grid(0)
         h_ref = []
         h_all = [[] for _ in range(run_max - run_min)]
 
@@ -61,8 +62,6 @@ class compute_inplane_helicity():
         runs = [-1] + np.arange(run_min, run_max).tolist()
 
         for ri, run in enumerate(runs):
-
-            grid = Grid(max(run, 0))  #Establish grid (on new scales, not 128)
 
             for snap in range(0,500,10):
 
@@ -86,19 +85,27 @@ class compute_inplane_helicity():
                     print('File', bfield_fname, 'not found')
                     continue
 
-                if run < 0:   #The magnetograms are saved in a different way to the outputs from MF -- I'd rather they weren't but it's easier to flip here than in the Fortran.
-                    bx = np.swapaxes(data.variables['bx'][:],0,1)
-                    by = np.swapaxes(data.variables['by'][:],0,1)
-                    bz = np.swapaxes(data.variables['bz'][:],0,1)
+                if not run < 0:
+                    bx_in = np.swapaxes(data.variables['bx'][:],0,1)
+                    by_in = np.swapaxes(data.variables['by'][:],0,1)
+                    bz_in = np.swapaxes(data.variables['bz'][:],0,1)
 
-                else:
-                    bx = data.variables['bx'][::-1,::-1]
-                    by = data.variables['by'][::-1,::-1]
-                    bz = data.variables['bz'][::-1,::-1]
+                else:   #These ones are already swapped for some reason I decided in the past
+                    bx_in = data.variables['bx'][:]
+                    by_in = data.variables['by'][:]
+                    bz_in = data.variables['bz'][:]
+                #Trim the edges out as these can go a bit screwy and bugger up the results
+                bx = np.zeros((np.shape(bx_in)))
+                by = np.zeros((np.shape(by_in)))
+                bz = np.zeros((np.shape(bz_in)))
+
+                bx[1:-1,1:-1] = bx_in[1:-1,1:-1]
+                by[1:-1,1:-1] = by_in[1:-1,1:-1]
+                bz[1:-1,1:-1] = bz_in[1:-1,1:-1]
 
                 #Need to average these to grid centres to get the FFT to work
-                bx0 = 0.5*(bx[:,1:] + bx[:,:-1])
-                by0 = 0.5*(by[1:,:] + by[:-1,:])
+                bx0 = 0.5*(bx[1:,:] + bx[1:,:])
+                by0 = 0.5*(by[:,1:] + by[:,:-1])
                 bz0 = bz[:,:]
 
                 mag_nx = bz.shape[0]; mag_ny = bz.shape[1]
@@ -162,17 +169,47 @@ class compute_inplane_helicity():
                 #print('Vector potential test', np.max(np.abs(bz[1:-1,1:-1] - bz_test[1:-1,1:-1]))/np.max(np.abs(bz[1:-1,1:-1])))
                 #This vector potential should be reasonably OK... Need code to test though
 
-                hfield = np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))
+                hfield = ax0*bx0 + ay0*by0 + az0*bz0
+
+                if snap == 300:
+
+                    if run < 0:
+                        fig, axs = plt.subplots(4,4, figsize = (10,10))
+
+                    if run < 0:
+                        row = 0
+
+                    else:
+                        row = ri - 1
+
+                    ax = axs[ri, 0]
+                    im = ax.pcolormesh(bx.T)
+                    plt.colorbar(im, ax = ax)
+                    ax = axs[ri, 1]
+                    axs[ri,1].pcolormesh(by.T)
+                    plt.colorbar(im, ax = ax)
+                    ax = axs[ri, 2]
+                    axs[ri,2].pcolormesh(bz.T)
+                    plt.colorbar(im, ax = ax)
+                    ax = axs[ri, 3]
+                    axs[ri,3].pcolormesh(hfield.T)
+                    plt.colorbar(im, ax = ax)
+
+                    if ri == len(runs) - 1:
+                        plt.tight_layout()
+                        plt.show()
+
+                hfield = np.sqrt(np.abs(hfield))
 
                 if run < 0:
                     h_ref.append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
                 else:
-                    h_all[run].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
+                    h_all[ri-1].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
 
-            plt.plot(h_all[ri], label = ('Run %d' % run))
+        for ri in range(len(runs)-1):
+            plt.plot(h_all[ri], label = ('Run %d' % runs[ri + 1]))
 
         plt.plot(h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
-
 
         plt.legend()
 

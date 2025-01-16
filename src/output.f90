@@ -166,15 +166,15 @@ zc_global(k-1)*abs(bx_slice(k)))/(abs(bx_slice(k)) + abs(bx_slice(k-1)))
             end if
         end do
         !DO LORENTZ FORCE SLICES
-        do k = 1, nx_global
-            diag_lfheights(diag_num, k) = sum(l0_global(1:nx,1:ny,k))
-        end do
+         do k = 1, nz_global
+             diag_lfheights(diag_num, k) = sum(l0_global(1:nx,1:ny,k))
+         end do
 
     end if
 
     call MPI_BARRIER(comm, ierr)
 
-    if (proc_num == 0) then
+    if (proc_num == -1) then
       print*, '______________________________________'
       !print*, 'Total current squared', t, diag_sumj(diag_num)
       print*, 'Time', diag_time(diag_num)

@@ -218,7 +218,7 @@ class compute_electrics():
                 print('File', bfield_fname, 'not found')
                 continue
         
-            bfield1 = np.swapaxes(data.variables['bz'][:],0,1)
+            bfield1 = data.variables['bz'][:]
             
             bfield_fname = '%s%04d.nc' % (data_directory, snap + 1)
         
@@ -230,7 +230,7 @@ class compute_electrics():
                 print('File', bfield_fname, 'not found')
                 continue
         
-            bfield2 = np.swapaxes(data.variables['bz'][:],0,1)
+            bfield2 = data.variables['bz'][:]
         
             bfield1 = gaussian_filter(bfield1, sigma = 1.0)
             bfield2 = gaussian_filter(bfield2, sigma = 1.0)
@@ -242,7 +242,7 @@ class compute_electrics():
             
             diff_init = bfield2 - bfield1   #Difference between the magnetic field at import resolution
             
-            X, Y = np.meshgrid(grid.xc, grid.yc)
+            X, Y = np.meshgrid(grid.xc, grid.yc, indexing = 'ij')
         
             diff_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), diff_init, bounds_error = False, method = 'linear', fill_value = None)
         
@@ -258,15 +258,15 @@ class compute_electrics():
             #Define distribution of the divergence of the electric field. 
             #Following Cheung and De Rosa, just proportional to the vertical field
             if True:   #'Twist' proportional to magnetic field
-                X, Y = np.meshgrid(grid.xs, grid.ys)
+                X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
 
-                bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1) + bfield2, bounds_error = False, method = 'linear', fill_value = None)
+                bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)
 
                 bf = bf_fn((X,Y))   #Difference now interpolated to the new grid
 
-                D = omega*bf
+                D = omega*(bf)   #Distribution looks more accuate with this negative maybe
 
-                print('OMEGA', omega)
+                #print('OMEGA', omega)
                 # plt.pcolormesh(bf)
                 # plt.colorbar()
                 # plt.show()
@@ -291,12 +291,13 @@ class compute_electrics():
 
                 except:
                     continue
+
                 bx = np.swapaxes(data.variables['bx'][:],0,1)
                 by = np.swapaxes(data.variables['by'][:],0,1)
                 bz = np.swapaxes(data.variables['bz'][:],0,1)
                 hfield2 = self.compute_inplane_helicity(grid, bx, by, bz)
 
-                X, Y = np.meshgrid(grid.xs, grid.ys)
+                X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
 
                 hf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5*(hfield1 + hfield2), bounds_error = False, method = 'linear', fill_value = None)
 
@@ -321,6 +322,10 @@ class compute_electrics():
             
             #print('Overall', np.max(np.abs(curl_test[1:-1,1:-1] + diff[1:-1,1:-1])))
         
+            #Swap sign of E, as that seems to be the way forward.
+            ex = -ex
+            ey = -ey
+
             if False:
                 plt.pcolormesh(ey)
                 plt.savefig('plots/ey%d.png' % snap)
@@ -330,7 +335,6 @@ class compute_electrics():
                 plt.savefig('plots/ex%d.png' % snap)
                 plt.show()
 
-                
             fid = netcdf_file(efield_fname, 'w')
             fid.createDimension('xs', grid.nx+1)
             fid.createDimension('ys', grid.ny+1)
@@ -347,11 +351,20 @@ class compute_electrics():
             vid = fid.createVariable('yc', 'd', ('yc',))
             vid[:] = grid.yc
         
+            if False:
+                plt.pcolormesh(grid.xc, grid.yc, bf.T)
+
+                #plt.pcolormesh(grid.xc, grid.ys, ex.T)
+                #plt.pcolormesh(grid.xs, grid.yc, ey.T)
+
+                plt.show()
             #Transposes are necessary as it's easier to flip here than in Fortran
+            #Still doesn't seem to like it -- sums are all correct but going in with the wrong direction.
+
             vid = fid.createVariable('ex', 'd', ('ys','xc'))
-            vid[:] = ex.T
+            vid[:] = np.swapaxes(ex, 0, 1)
             vid = fid.createVariable('ey', 'd', ('yc','xs'))
-            vid[:] = ey.T
+            vid[:] = np.swapaxes(ey, 0, 1)
         
             fid.close()
 
@@ -419,9 +432,7 @@ class compute_electrics():
         #This vector potential should be reasonably OK... Need code to test though
 
         #Should be proportional to the magnetic field strength, so this helicity requires a square root. I'm pretty sure the scaling is OK here...
-        hfield = np.sqrt(ax0*bx0 + ay0*by0 + az0*bz0)
+        hfield = np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))*np.sign(ax0*bx0 + ay0*by0 + az0*bz0)
 
         return hfield
-
-compute_electrics(0, 0, omega= 0.0)
 
