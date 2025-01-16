@@ -59,7 +59,7 @@ y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
 init_number = run
-omega = [-0.015,0.0,0.015][run]
+omega = [1e-4,1e-3,1e-2][run]
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term

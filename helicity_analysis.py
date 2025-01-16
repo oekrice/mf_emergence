@@ -60,12 +60,15 @@ class compute_inplane_helicity():
 
         #Call run = -1 the reference case
         runs = [-1] + np.arange(run_min, run_max).tolist()
+        omegas = []
 
         for ri, run in enumerate(runs):
 
-            if run > 0:
+            if run >= 0:
                 paras = np.loadtxt('parameters/variables%03d.txt' % run)
                 omega = paras[28]
+                omegas.append(omega)
+                print(run, 'omega', omega)
 
             for snap in range(0,500,10):
 
@@ -199,10 +202,6 @@ class compute_inplane_helicity():
                     im = axs[ri,3].pcolormesh(hfield.T, cmap = 'seismic', vmax = np.max(np.abs(hfield)), vmin = -np.max(np.abs(hfield)))
                     plt.colorbar(im, ax = ax)
 
-                    if ri == len(runs) - 1:
-                        plt.tight_layout()
-                        plt.show()
-
                 hfield = np.sqrt(np.abs(hfield))
 
                 if run < 0:
@@ -210,8 +209,11 @@ class compute_inplane_helicity():
                 else:
                     h_all[ri-1].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
 
+        plt.tight_layout()
+        plt.show()
+
         for ri in range(len(runs)-1):
-            plt.plot(h_all[ri], label = ('Omega = ' +  str(omega)))
+            plt.plot(h_all[ri], label = ('Omega =', omegas[ri]))
 
         plt.plot(h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 

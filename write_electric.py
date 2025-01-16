@@ -432,7 +432,7 @@ class compute_electrics():
         #This vector potential should be reasonably OK... Need code to test though
 
         #Should be proportional to the magnetic field strength, so this helicity requires a square root. I'm pretty sure the scaling is OK here...
-        hfield = np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))*np.sign(ax0*bx0 + ay0*by0 + az0*bz0)
+        hfield = -np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))*np.sign(bz0)
 
         return hfield
 
