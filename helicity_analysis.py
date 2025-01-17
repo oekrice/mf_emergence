@@ -57,7 +57,7 @@ class compute_inplane_helicity():
         grid = Grid(0)
         h_ref = []
         h_all = [[] for _ in range(run_max - run_min)]
-
+        ts = []
         #Call run = -1 the reference case
         runs = [-1] + np.arange(run_min, run_max).tolist()
         omegas = []
@@ -205,19 +205,25 @@ class compute_inplane_helicity():
 
                 if run < 0:
                     h_ref.append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
+                    ts.append(snap*0.5)
                 else:
                     h_all[ri-1].append(np.sum(np.abs(hfield)*mag_dx*mag_dy))
 
         plt.tight_layout()
-        plt.show()
+        plt.close()
 
+        fig = plt.figure(figsize = (10,7))
         for ri in range(len(runs)-1):
-            plt.plot(h_all[ri], label = ('Omega =', omegas[ri]))
+            plt.plot(ts[:len(h_all[ri])], h_all[ri], label = ('Omega factor= %.3f' % omegas[ri]))
 
-        plt.plot(h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
+        plt.plot(ts, h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 
         plt.legend()
 
+        plt.xlabel('Time')
+        plt.ylabel('Surface helicity A.B')
+        plt.tight_layout()
+        plt.savefig('helicityanalysis.png')
         plt.show()
 
 
