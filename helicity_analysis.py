@@ -214,7 +214,7 @@ class compute_inplane_helicity():
 
         fig = plt.figure(figsize = (10,7))
         for ri in range(len(runs)-1):
-            plt.plot(ts[:len(h_all[ri])], h_all[ri], label = ('Omega factor= %.3f' % omegas[ri]))
+            plt.plot(ts[:len(h_all[ri])], h_all[ri], label = ('Omega factor= %.4f' % omegas[ri]))
 
         plt.plot(ts, h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 
