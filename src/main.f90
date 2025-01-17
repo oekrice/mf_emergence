@@ -76,7 +76,7 @@ PROGRAM main
         end if
 
         if (MOD(n, int(nt/int(ndiags-1))) == 0) then   ! Save a snapshot (prints a message as well)
-            if (proc_num == 0) print*, 'Step', n, 'at time', t
+            !if (proc_num == 0) print*, 'Step', n, 'at time', t
 
             CALL diagnostics(int(n/(nt/(ndiags-1))))  !WILL BREAK FOR tstart != 0
 

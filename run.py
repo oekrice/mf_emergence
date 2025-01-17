@@ -43,9 +43,9 @@ eta0 = 0.0
 tmax = 750.0
 tstart = 0.0
 
-nx = 96
-ny = 96
-nz = 96
+nx = 64
+ny = 64
+nz = 64
 
 nplots = 150
 ndiags = 750

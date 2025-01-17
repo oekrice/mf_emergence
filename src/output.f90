@@ -19,7 +19,8 @@ SUBROUTINE diagnostics(diag_num)
     INTEGER:: i,j,k, xrank_in, yrank_in, zrank_in
     INTEGER:: x_target, y_target
     LOGICAL:: flag1
-    character(len=100):: filename
+    character(len=100):: diag_filename
+    character(len=2):: run_id
 
     integer:: id_1, id_2, id_3, id_4, id_5, id_6, id_7, id_8, ncid, nd_id, nz_id
 
@@ -174,27 +175,29 @@ zc_global(k-1)*abs(bx_slice(k)))/(abs(bx_slice(k)) + abs(bx_slice(k-1)))
 
     call MPI_BARRIER(comm, ierr)
 
-    if (proc_num == -1) then
+    if (proc_num == 0) then
       print*, '______________________________________'
       !print*, 'Total current squared', t, diag_sumj(diag_num)
-      print*, 'Time', diag_time(diag_num)
-      print*, 'Open Flux', diag_oflux(diag_num)
-      print*, 'Total Current', diag_sumj(diag_num)
-      print*, 'Total Efield', diag_sume(diag_num)
+      print*, 'Diagnostic Time', diag_time(diag_num)
+      print*, '______________________________________'
+
+      !print*, 'Open Flux', diag_oflux(diag_num)
+      !print*, 'Total Current', diag_sumj(diag_num)
+      !print*, 'Total Efield', diag_sume(diag_num)
       !print*, 'bz0 check', sum(bz0_global)
 
       !print*, 'Average Current', diag_avgj(diag_num)
       !print*, 'Magnetic Energy', diag_energy(diag_num)
 
     !ADMIN
-    if (run_number < 10) then
-        write (filename, "(A18,I1,A3)") "./diagnostics/run0", int(run_number), ".nc"
-    else
-        write (filename, "(A17,I2,A3)") "./diagnostics/run", int(run_number), ".nc"
-    end if
+
+
+    write (run_id,'(I2.2)') int(run_number)
+
+    diag_filename = trim('./diagnostics/run'//trim(run_id)//'.nc')
 
     !Write to diagnostics file, using netcdf
-    call try(nf90_create(trim(filename), nf90_clobber, ncid))
+    call try(nf90_create(trim(diag_filename), nf90_clobber, ncid))
     call try(nf90_def_dim(ncid, 'ndiags', ndiags, nd_id))  !Make up fake dimensions here
     call try(nf90_def_dim(ncid, 'nz', nz_global, nz_id))  !Make up fake dimensions here
 
