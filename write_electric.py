@@ -187,7 +187,7 @@ class compute_electrics():
     def __init__(self, run, init_number, omega = 0.):
 
         mag_dt = 0.5
-        t_ahead = 30.0 #Take the derivate from some time ahead. To be determined kind of randomly
+        t_ahead = 50.0 #Take the derivate from some time ahead. To be determined kind of randomly
 
         grid = Grid(run)  #Establish grid (on new scales, not 192)
         

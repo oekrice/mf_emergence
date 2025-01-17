@@ -40,15 +40,15 @@ voutfact = 5.0
 shearfact = 1.0#3.7e-5   #factor by which to change the imported 'speed'
 eta0 = 0.0
 
-tmax = 400.0
+tmax = 750.0
 tstart = 0.0
 
 nx = 96
 ny = 96
 nz = 96
 
-nplots = 100
-ndiags = 400
+nplots = 150
+ndiags = 750
 nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 
 nu0 = 10.0#np.geomspace(1.0,50.0,10)[run]
@@ -59,7 +59,10 @@ y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
 init_number = run
-omega = np.geomspace(1e-4,1e-3,10)[run]
+omega = np.geomspace(5e-4,5e-3,10)[run]
+#omega = 1e-3
+
+print(np.geomspace(1e-4,1e-3,10))
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term

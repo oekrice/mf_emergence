@@ -25,7 +25,7 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0,1,2,3,4,5,6,7,8,9]
+runs = [0]
 nsets =  len(runs)
 
 cs = plt.cm.plasma(np.linspace(0.1,0.9,nsets))
@@ -132,6 +132,7 @@ for run in runs:
     if plot_set_number == nsets-1:
         plt.tight_layout()
         plt.savefig('diagnostics.png')
+        plt.show()
         plt.close()
 
     plot_set_number += 1
