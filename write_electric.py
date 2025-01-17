@@ -187,6 +187,7 @@ class compute_electrics():
     def __init__(self, run, init_number, omega = 0.):
         grid = Grid(run)  #Establish grid (on new scales, not 192)
         
+        omega_init = omega
         data_directory = './magnetograms/'
         
         if len(sys.argv) > 1:
@@ -205,7 +206,9 @@ class compute_electrics():
             os.mkdir('efields/%03d' % init_number)
 
         for snap in range(0,500):
-        
+ 
+            if snap > 100:
+                omega = max(0.0, omega_init*(250 - snap)/150)    #Do the cutoff test       
             print('Importing fields', snap, 'and', snap + 1)
             bfield_fname = '%s%04d.nc' % (data_directory, snap)
             efield_fname = '%s%03d/%04d.nc' % ('./efields/', init_number, snap)
@@ -257,7 +260,7 @@ class compute_electrics():
         
             #Define distribution of the divergence of the electric field. 
             #Following Cheung and De Rosa, just proportional to the vertical field
-            if False:   #'Twist' proportional to magnetic field
+            if True:   #'Twist' proportional to magnetic field
                 X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
 
                 bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)

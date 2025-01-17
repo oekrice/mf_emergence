@@ -178,7 +178,7 @@ class compute_inplane_helicity():
 
                 hfield = ax0*bx0 + ay0*by0 + az0*bz0
 
-                if snap == 300:
+                if snap == 300 and ri < 4:
 
                     if run < 0:
                         fig, axs = plt.subplots(4,4, figsize = (10,10))

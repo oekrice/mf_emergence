@@ -140,7 +140,7 @@ class trace_fieldlines():
         x, y = np.meshgrid(self.xs, self.ys)
         z = 10*np.ones((np.shape(x)))
         surface = pv.StructuredGrid(x, y, z)
-        p = pv.Plotter(off_screen=False)
+        p = pv.Plotter(off_screen=True)
         p.background_color = "black"
 
         print(len(self.lines), ' lines imported')
@@ -352,10 +352,10 @@ print('Run', run, snap_min, snap_max)
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
 set_num = int(sys.argv[2])
 snap_min = 0 + set_num
-for run in range(10):
+for run in range(run, run+1):
     for snap in range(snap_min, snap_max):
     	print('Run number', run, 'Plot number', snap_min)
-    	trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
+    	trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_max)
     	#snap_min = snap_min + nset
 
 #trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)
