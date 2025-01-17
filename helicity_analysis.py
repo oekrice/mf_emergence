@@ -61,7 +61,6 @@ class compute_inplane_helicity():
         #Call run = -1 the reference case
         runs = [-1] + np.arange(run_min, run_max).tolist()
         omegas = []
-
         for ri, run in enumerate(runs):
 
             if run >= 0:

@@ -26,7 +26,7 @@ from get_flh import FLH
 #pv.start_xvfb()
 
 class trace_fieldlines():
-    def __init__(self, run, snap_min, snap_max):
+    def __init__(self, run, snap_min, snap_max, show = 0):
 
         if os.uname()[1] == 'brillouin.dur.ac.uk' or os.uname()[1] == 'modigliani.dur.ac.uk':
             machine_flag = 0
@@ -48,6 +48,7 @@ class trace_fieldlines():
         else:
             self.start_seeds = np.loadtxt('start_seeds.txt', delimiter = ',')
 
+        self.show = show
         self.machine_flag = machine_flag
         print('Data root', data_directory)
         #Establish grid parameters (can be read in from elsewhere of course)
@@ -140,7 +141,11 @@ class trace_fieldlines():
         x, y = np.meshgrid(self.xs, self.ys)
         z = 10*np.ones((np.shape(x)))
         surface = pv.StructuredGrid(x, y, z)
-        p = pv.Plotter(off_screen=True)
+
+        if self.show:
+            p = pv.Plotter(off_screen=False)
+        else:
+            p = pv.Plotter(off_screen=True)
         p.background_color = "black"
 
         print(len(self.lines), ' lines imported')
@@ -347,6 +352,10 @@ if len(sys.argv) > 3:
 else:
     snap_max = snap_min + 1
 
+if len(sys.argv) > 4:
+    show = int(sys.argv[4])
+else:
+    show = 0
 
 print('Run', run, snap_min, snap_max)
 nset = 1 #Number of concurrent runs. Receives input 0-(nset-1)
@@ -355,7 +364,7 @@ snap_min = 0 + set_num
 for run in range(run, run+1):
     for snap in range(snap_min, snap_max):
     	print('Run number', run, 'Plot number', snap_min)
-    	trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_max)
+    	trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_max, show = show)
     	#snap_min = snap_min + nset
 
 #trace_fieldlines(run = run, snap_min = snap_min, snap_max = snap_min+1)

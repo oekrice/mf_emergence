@@ -185,6 +185,10 @@ class FT():
 class compute_electrics():
     
     def __init__(self, run, init_number, omega = 0.):
+
+        mag_dt = 0.5
+        t_ahead = 30.0 #Take the derivate from some time ahead. To be determined kind of randomly
+
         grid = Grid(run)  #Establish grid (on new scales, not 192)
         
         omega_init = omega
@@ -205,10 +209,36 @@ class compute_electrics():
         if not os.path.exists('efields/%03d' % init_number):
             os.mkdir('efields/%03d' % init_number)
 
+        hlog_exists = False
+        #See if an existing log exists
+        try:
+            hdiff_log = np.load('hdiffs.npy')
+            hlog = np.load('hs.npy')
+
+            hlog = gaussian_filter(hlog, 20.0)
+
+            if len(hdiff_log) > 400:
+                hlog_exists = True
+
+            hdiff_log = (hlog[1:] - hlog[:-1])/mag_dt
+
+            hdiff_log = np.concatenate((hdiff_log, np.array([0])))
+
+            #plt.plot(hlog)
+
+            #plt.plot(hdiff_log)
+            #plt.show()
+        except:
+            pass
+
+
+        if not hlog_exists:
+            hdiff_log = []   #Derivateives of the in-plane helicity, so it doesn't need to be done lots
+            hlog = []
+
         for snap in range(0,500):
- 
-            if snap > 100:
-                omega = max(0.0, omega_init*(250 - snap)/150)    #Do the cutoff test       
+            t_int = int(t_ahead/mag_dt)
+
             print('Importing fields', snap, 'and', snap + 1)
             bfield_fname = '%s%04d.nc' % (data_directory, snap)
             efield_fname = '%s%03d/%04d.nc' % ('./efields/', init_number, snap)
@@ -260,7 +290,8 @@ class compute_electrics():
         
             #Define distribution of the divergence of the electric field. 
             #Following Cheung and De Rosa, just proportional to the vertical field
-            if True:   #'Twist' proportional to magnetic field
+            if False:   #'Twist' proportional to magnetic field
+
                 X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
 
                 bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)
@@ -273,7 +304,71 @@ class compute_electrics():
                 # plt.pcolormesh(bf)
                 # plt.colorbar()
                 # plt.show()
+            elif True:
+                #Pattern proportional to magnetic field but overall magnitude with rate of change in helicity.
+                #Could also just try overall helicity as well?
 
+                #Calculate rate of change in Helicity over these timesteps
+                if not hlog_exists:
+                    bfield_fname = '%s%04d.nc' % (data_directory, snap)
+
+                    try:
+                        data = netcdf_file(bfield_fname, 'r', mmap=False)
+                    except:
+                        continue
+
+                    bx = np.swapaxes(data.variables['bx'][:],0,1)
+                    by = np.swapaxes(data.variables['by'][:],0,1)
+                    bz = np.swapaxes(data.variables['bz'][:],0,1)
+
+                    mag_nx = bz.shape[0]; mag_ny = bz.shape[1]
+                    mag_dx = (grid.xs[-1] - grid.xs[0])/mag_nx
+                    mag_dy = (grid.ys[-1] - grid.ys[0])/mag_ny
+
+                    hfield1 = self.compute_inplane_helicity(grid, bx, by, bz)
+
+                    hsum1 = np.sum(np.abs(hfield1)*mag_dx*mag_dy)
+
+                    bfield_fname = '%s%04d.nc' % (data_directory, snap + 1)
+
+                    data.close()
+                    try:
+                        data = netcdf_file(bfield_fname, 'r', mmap=False)
+                    except:
+                        continue
+
+                    bx = np.swapaxes(data.variables['bx'][:],0,1)
+                    by = np.swapaxes(data.variables['by'][:],0,1)
+                    bz = np.swapaxes(data.variables['bz'][:],0,1)
+
+                    data.close()
+
+                    hfield2 = self.compute_inplane_helicity(grid, bx, by, bz)
+
+                    hsum2 = np.sum(np.abs(hfield2)*mag_dx*mag_dy)
+
+                    dhdt = (hsum2 - hsum1)/mag_dt
+
+                    print('Helicity change', dhdt, hsum1, hsum2)
+
+                    hdiff_log.append(dhdt)
+                    hlog.append(hsum1)
+
+                else:
+                    try:
+                        dhdt = hdiff_log[snap+ t_int]
+                    except:
+                        dhdt = 0.
+
+                X, Y = np.meshgrid(grid.xs, grid.ys, indexing = 'ij')
+
+                bf_fn = RegularGridInterpolator((grid.xc_import[1:-1], grid.yc_import[1:-1]), 0.5 * (bfield1 + bfield2), bounds_error = False, method = 'linear', fill_value = None)
+
+                bf = bf_fn((X,Y))   #Difference now interpolated to the new grid
+
+                bfield_fname = '%s%04d.nc' % (data_directory, snap)
+
+                D = omega_init*dhdt*(bf)
 
             else:   #'Twist' proportional to in-plane helicity
                 bfield_fname = '%s%04d.nc' % (data_directory, snap)
@@ -371,6 +466,10 @@ class compute_electrics():
         
             fid.close()
 
+        if len(hdiff_log) > 400:
+            np.save('hdiffs.npy', np.array(hdiff_log))
+            np.save('hs.npy', np.array(hlog))
+
     def compute_inplane_helicity(self, grid, bx, by, bz):
         #Need to average these to grid centres to get the FFT to work
         bx0 = 0.5*(bx[:,1:] + bx[:,:-1])
@@ -435,7 +534,7 @@ class compute_electrics():
         #This vector potential should be reasonably OK... Need code to test though
 
         #Should be proportional to the magnetic field strength, so this helicity requires a square root. I'm pretty sure the scaling is OK here...
-        hfield = -np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))*np.sign(bz0)
+        hfield = np.sqrt(np.abs(ax0*bx0 + ay0*by0 + az0*bz0))
 
         return hfield
 
