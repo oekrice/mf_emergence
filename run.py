@@ -59,13 +59,13 @@ y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
 init_number = run
-omega = np.geomspace(1e-4,1e-1,10)[run]
-omega = [1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1][run]
-#omega = 1e-3
+#omega = np.geomspace(1e-4,1e-1,10)[run]
+#omega = 1e-2[1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1][run]
+omega = 1e-2
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
-decay_type = 0  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
+decay_type = 3  #Decay types -- 0 for none, 1 for exponential, 2/3 for tanh. Same as the 2D cases.
 
 if decay_type == 0: #No pressure
     zstar = 0.0; a = 0.0; b = 0.0; deltaz = 0.0
@@ -87,7 +87,7 @@ if decay_type == 2: #smooth tanh
 
 if decay_type == 3: #sharp tanh
     a = 0.25; b = 1.0
-    zstar = np.linspace(0.0,0.3,10)[run]*z1
+    zstar = np.linspace(0.0,0.3,7)[run]*z1
     deltaz = 0.02*z1
 
 #INITIAL LOWER BOUNDARY CONDITION
