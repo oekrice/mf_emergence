@@ -25,7 +25,7 @@ from scipy.ndimage import gaussian_filter1d
 #Will try to automate and get parameters etc.
 
 plot_set_number = 0  #Do this now to make things neat. Yes. Good.
-runs = [0]
+runs = [0,9]
 nsets =  len(runs)
 
 cs = plt.cm.plasma(np.linspace(0.1,0.9,nsets))
@@ -137,7 +137,7 @@ for run in runs:
 
     plot_set_number += 1
 
-if True:
+if False:
     #Plot Lorentz force for given set of snapshots, jsut based on the average over a horizontal slice (no need to be fancy)
     if not os.path.exists('lorentzplots'):
         os.mkdir('lorentzplots')

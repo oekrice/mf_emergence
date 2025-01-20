@@ -232,7 +232,7 @@ for plot_num in range(start,end,1):
         axs[2,2].set_title('Efield ez')
 
         plt.tight_layout()
-        #plt.show()
+        plt.show()
         plt.savefig('plots/a_%02d_%04d' % (run, plot_num))
         plt.close()
 

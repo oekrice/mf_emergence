@@ -43,9 +43,9 @@ eta0 = 0.0
 tmax = 750.0
 tstart = 0.0
 
-nx = 128
-ny = 128
-nz = 128
+nx = 96
+ny = 96
+nz = 96
 
 nplots = 150
 ndiags = 750
@@ -61,8 +61,6 @@ z0 = 0.0; z1 = 130.0
 init_number = 0#run
 omega = 1e-3#np.geomspace(5e-4,5e-3,10)[run]
 #omega = 1e-3
-
-print(np.geomspace(1e-4,1e-3,10))
 
 backfield_angle = 0.1#Angle of background field in degrees.
 #Variables for the pressure term
