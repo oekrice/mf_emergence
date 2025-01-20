@@ -232,7 +232,7 @@ class compute_inplane_helicity():
         np.save('constant_omega/ts.npy', np.array(ts))
         np.save('constant_omega/omegas.npy', np.array(omegas))
 
-nruns = 1
+nruns = 7
 
 if os.uname()[1] == 'brillouin.dur.ac.uk':
     os.system('scp -r trcn27@hamilton8.dur.ac.uk:/home/trcn27/mf_emergence/writeup/constant_omega/')
