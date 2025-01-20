@@ -47,7 +47,7 @@ PROGRAM fltrace
     if (machine_flag == 0) then
         data_root = './constant_omega/'
     else if (machine_flag == 1) then
-        data_root = '/nobackup/trcn27/mf3d0/'
+        data_root = './constant_pressure/'
     else
         data_root = '../Data/'
     end if
