@@ -24,6 +24,9 @@ from scipy.fft import fft, ifft2, fft2, ifft
 
 matplotlib.rcParams['text.usetex'] = True
 
+cs = plt.cm.plasma(np.linspace(0.1,0.9,7))
+fig_width = 1.0*(513.11743/72)
+
 #There are seven runs. Use the same script here and on Hamilton for neatness purposes.
 
 class Grid():
@@ -84,7 +87,7 @@ class compute_inplane_helicity():
                 omegas.append(omega)
                 print(run, 'omega', omega)
 
-            for snap in range(0,500,10):
+            for snap in range(0,500,2):
 
                 if (snap%10) == 0:
                     print('Run', run, ', snap', snap)
@@ -235,11 +238,28 @@ class compute_inplane_helicity():
 nruns = 7
 
 if os.uname()[1] == 'brillouin.dur.ac.uk':
-    os.system('scp -r trcn27@hamilton8.dur.ac.uk:/home/trcn27/mf_emergence/writeup/constant_omega/')
+    os.system('scp -r trcn27@hamilton8.dur.ac.uk:/home/trcn27/mf_emergence/writeup/constant_omega/ ./')
     pass
 
 else:
     compute_inplane_helicity(0,nruns)
+
+def niceformat(number):
+    #Gives a string that looks like 5 x 10^-4 or whatever, based on the significant figures of the input
+
+    mag = 10   #Magnitude to care about
+    while mag > -16:
+        if int(number / 10**mag) > 0:
+            #This is the correct magnitude
+            main = int(number / 10**mag)
+            exp = mag
+            break
+        else:
+            mag -= 1
+    output = str(main) + ' \\times 10^{' + str(exp) + '}'
+    return output
+
+
 
 #compute_inplane_helicity(0,1)
 
@@ -250,16 +270,16 @@ h_ref = np.load('constant_omega/h_ref.npy')
 ts = np.load('constant_omega/ts.npy')
 omegas = np.load('constant_omega/omegas.npy')
 
-fig = plt.figure(figsize = (10,7))
+fig = plt.figure(figsize = (fig_width,0.5*fig_width))
 for ri in range(nruns):
-    plt.plot(ts[:len(h_all[ri])], h_all[ri], label = ('Omega factor= %.4f' % omegas[ri]))
+    plt.plot(ts[:len(h_all[ri])], h_all[ri], c = cs[ri], label = ('$\\Omega = %s$' % niceformat(omegas[ri])) )
 
 plt.plot(ts, h_ref, c= 'black', linestyle = 'dashed', label = 'LARE Reference')
 
 plt.legend()
 
 plt.xlabel('Time')
-plt.ylabel('In-plane helicity A.B')
+plt.ylabel('In-plane helicity H')
 plt.tight_layout()
 plt.savefig('constant_omega.png')
 plt.savefig('constant_omega.pdf')
