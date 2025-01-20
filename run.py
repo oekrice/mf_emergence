@@ -59,7 +59,8 @@ y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
 init_number = run
-omega = np.geomspace(1e-5,1e-1,10)[run]
+omega = np.geomspace(1e-4,1e-1,10)[run]
+omega = [1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1][run]
 #omega = 1e-3
 
 backfield_angle = 0.1#Angle of background field in degrees.
