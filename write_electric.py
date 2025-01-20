@@ -368,7 +368,7 @@ class compute_electrics():
 
                 bfield_fname = '%s%04d.nc' % (data_directory, snap)
 
-                D = omega_init*dhdt*(bf)
+                D = omega_init*bf #omega_init*dhdt*(bf)
 
             else:   #'Twist' proportional to in-plane helicity
                 bfield_fname = '%s%04d.nc' % (data_directory, snap)
