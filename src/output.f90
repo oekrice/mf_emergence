@@ -362,12 +362,19 @@ SUBROUTINE export_magnetogram(mag_num)
     INTEGER:: xc_id, yc_id
     INTEGER:: bx_id, by_id, bz_id
     CHARACTER(LEN=4):: mag_id, run_id
+    CHARACTER(LEN=64):: mag_filename_root
+
+    if (hamilton_flag > 0.5_num) then
+         mag_filename_root = trim('/nobackup/trcn27/mf_mags/')
+    else
+         mag_filename_root = trim('./mf_mags/')
+    end if    
 
     !Make magnetogram filename
     write (mag_id,'(I4.4)') mag_num
     write (run_id,'(I3.3)') int(run_number)
 
-    mag_filename = trim('./mf_mags/'//trim(run_id)//'/'//trim(mag_id)//'.nc')
+    mag_filename = trim(trim(mag_filename_root)//trim(run_id)//'/'//trim(mag_id)//'.nc')
 
     if (proc_num == 0) then
     call try(nf90_create(trim(mag_filename), nf90_clobber, ncid))

@@ -43,11 +43,11 @@ eta0 = 0.0
 tmax = 750.0
 tstart = 0.0
 
-nx = 96
-ny = 96
-nz = 96
+nx = 128
+ny = 128
+nz = 128
 
-nplots = 150
+nplots = 50
 ndiags = 750
 nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 
@@ -58,7 +58,7 @@ x0 = -130.0; x1 = 130.0
 y0 = -130.0; y1 = 130.0
 z0 = 0.0; z1 = 130.0
 
-init_number = run
+init_number = 0 #run
 #omega = np.geomspace(1e-4,1e-1,10)[run]
 #omega = 1e-2[1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1][run]
 omega = 1e-2
@@ -213,16 +213,21 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-if not os.path.isdir('./mf_mags/'):
-    os.mkdir('./mf_mags/')
+if hflag:
+    mag_file_root = '/nobackup/trcn27/mf_mags/'
+else:
+    mag_file_root = './mf_mags/'
+
+if not os.path.isdir(mag_file_root):
+    os.mkdir(mag_file_root)
 
 #Make magnetogram filenames if necessary
-if os.path.isdir('./mf_mags/%03d/' % run):
+if os.path.isdir('%s%03d/' % (mag_file_root, run)):
     for i in range(1000):
-        if os.path.isfile('./mf_mags/%03d/%04d.nc' % (run, i)):
-            os.remove('./mf_mags/%03d/%04d.nc' % (run, i))
+        if os.path.isfile('%s%03d/%04d.nc' % (mag_file_root, run, i)):
+            os.remove('%smf_mags/%03d/%04d.nc' % (mag_file_root, i))
 else:
-    os.mkdir('./mf_mags/%03d/' % run)
+    os.mkdir('%s%03d/' % (mag_file_root, run))
 
 np.savetxt('parameters/variables%03d.txt' % run, variables)   #variables numbered based on run number (up to 1000)
 
