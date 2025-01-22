@@ -103,7 +103,7 @@ MODULE grid
     integer:: aid, bid, cid, vid, ncid
     CHARACTER(LEN=4):: snap_id
 
-    write (snap_id,'(I3.3)') snap
+    write (snap_id,'(I4.4)') snap
 
     filename = trim('./fl_data/flines'//trim(snap_id)//'.nc')
 

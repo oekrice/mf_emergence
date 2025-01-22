@@ -16,7 +16,7 @@ PROGRAM fltrace
     call get_command_argument(1, input_value)
     read(unit=input_value,fmt=*) snap
 
-    write (snap_id,'(I3.3)') snap
+    write (snap_id,'(I4.4)') snap
     parameter_filename = trim('./fl_data/flparameters'//trim(snap_id)//'.txt')
 
     print*, parameter_filename
@@ -98,7 +98,7 @@ PROGRAM fltrace
 
     ALLOCATE(starts(0:nstarts-1,0:2))
 
-    write (snap_id,'(I3.3)') snap
+    write (snap_id,'(I4.4)') snap
 
     starts_filename = trim('./fl_data/starts'//trim(snap_id)//'.txt')
 

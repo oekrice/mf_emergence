@@ -55,13 +55,20 @@ class trace_fieldlines():
         for snap_number in range(snap_min, snap_max):
             self.run = run
             self.snap = snap_number
-            self.print_flag = 1
+            self.print_flag = show
 
             self.save_number = self.snap
             self.option = 2   #tracing a plotting options (1 for jet, 2 for emergence)
 
             self.data_source = 0.
             self.data_root = data_directory
+
+            if not (self.print_flag): #In this case, assume it's fine to wait for a bit
+                while not os.path.exists('%s%04d.nc' % (self.data_root, self.snap + 10)):
+                    time.sleep(0.1)
+            else:
+                pass
+
             data = netcdf_file('%s%04d.nc' % (self.data_root, self.snap), 'r', mmap=False)
             self.bx = np.swapaxes(data.variables['bx'][:],0,2)
             self.by = np.swapaxes(data.variables['by'][:],0,2)
@@ -129,9 +136,9 @@ class trace_fieldlines():
             if not os.path.exists('./plots/'):
                 os.mkdir('plots')
 
-            os.system('rm ./fl_data/flines%03d.nc' % self.snap)
-            os.system('rm ./fl_data/flparameters%03d.txt' % self.snap)
-            os.system('rm ./fl_data/starts%03d.txt' % self.snap)
+            os.system('rm ./fl_data/flines%04d.nc' % self.snap)
+            os.system('rm ./fl_data/flparameters%04d.txt' % self.snap)
+            os.system('rm ./fl_data/starts%04d.txt' % self.snap)
 
             self.plot_vista()
 
@@ -187,8 +194,8 @@ class trace_fieldlines():
             p.camera.focal_point = (0,0,0)
 
 
-        p.show(screenshot='./plots/%02d_%04d.png' % (self.run, self.save_number), window_size = (1000,1000))
-        print('Plot saved to file ./plots/b%04d.png' % self.save_number)
+        p.show(screenshot='./plots/%04d.png' % (self.save_number), window_size = (1000,1000))
+        print('Plot saved to file ./plots/%04d.png' % self.save_number)
         #p.show(screenshot='difftestb%04d.png' % self.save_number, window_size = (1000,1000))
 
     def plot_difference(self):
@@ -316,8 +323,8 @@ class trace_fieldlines():
         variables[16] = self.data_source
         variables[17] = self.machine_flag
 
-        np.savetxt('./fl_data/flparameters%03d.txt' % self.snap, variables)   #variables numbered based on run number (up to 1000)
-        np.savetxt('./fl_data/starts%03d.txt' % self.snap, self.starts)   #Coordinates of the start points of each field line (do this in python)
+        np.savetxt('./fl_data/flparameters%04d.txt' % self.snap, variables)   #variables numbered based on run number (up to 1000)
+        np.savetxt('./fl_data/starts%04d.txt' % self.snap, self.starts)   #Coordinates of the start points of each field line (do this in python)
 
     def trace_lines_fortran(self):
         os.system('make')
@@ -329,7 +336,7 @@ class trace_fieldlines():
             os.system('mpirun -np 1 ./bin/fltrace %d' % self.snap)
 
         try:
-            data = netcdf_file('./fl_data/flines%03d.nc' % self.snap, 'r', mmap=False)
+            data = netcdf_file('./fl_data/flines%04d.nc' % self.snap, 'r', mmap=False)
             print('Field lines found')
 
         except:
