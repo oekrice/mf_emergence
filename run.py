@@ -47,7 +47,7 @@ nx = 128
 ny = 128
 nz = 128
 
-nplots = 50
+nplots = 750
 ndiags = 750
 nmags = max(500, 500*tmax/250.0) #Number of magnetograms used.
 

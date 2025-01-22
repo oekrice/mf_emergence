@@ -52,6 +52,10 @@ PROGRAM fltrace
         data_root = '../Data/'
     end if
 
+    !Change for different plotting things
+    data_root = './sequence/'
+
+
     snap = int(flparameters(10))
     nstarts = int(flparameters(11))
     print_flag = int(flparameters(12))

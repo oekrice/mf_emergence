@@ -207,7 +207,7 @@ SUBROUTINE import_surface_electric(flow_number, dt_fact)
     INTEGER:: ncid, vid
     REAL(num):: dt_fact
 
-    if (flow_number < 499) then
+    if (flow_number < 498) then
         write (flow_id,'(I4.4)') flow_number
         write (run_id,'(I3.3)') init_number
 
