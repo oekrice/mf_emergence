@@ -5,7 +5,7 @@
 #SBATCH --mem=8G      # 1 GB RAM
 #SBATCH --time=0-48:0:0  # 1 hour (days-hours:minutes:seconds)
 #SBATCH -p shared
-#SBATCH --array=0-6
+#SBATCH --array=0-9
 
 # Make python available:
 module load python

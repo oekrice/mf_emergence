@@ -87,7 +87,7 @@ if decay_type == 2: #smooth tanh
 
 if decay_type == 3: #sharp tanh
     a = 0.25; b = 1.0
-    zstar = np.linspace(0.0,0.3,7)[run]*z1
+    zstar = np.linspace(0.0,0.3,10)[run]*z1
     deltaz = 0.02*z1
 
 #INITIAL LOWER BOUNDARY CONDITION
