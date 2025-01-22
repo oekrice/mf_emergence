@@ -225,7 +225,7 @@ if not os.path.isdir(mag_file_root):
 if os.path.isdir('%s%03d/' % (mag_file_root, run)):
     for i in range(1000):
         if os.path.isfile('%s%03d/%04d.nc' % (mag_file_root, run, i)):
-            os.remove('%smf_mags/%03d/%04d.nc' % (mag_file_root, i))
+            os.remove('%s%03d/%04d.nc' % (mag_file_root, run, i))
 else:
     os.mkdir('%s%03d/' % (mag_file_root, run))
 
@@ -266,7 +266,7 @@ if True:
 
     init = compute_initial_condition(grid, bz, run, background_strength = 0.0, background_angle = backfield_angle, boundary_error_limit = 1e-6, init_filename = './inits/init%03d.nc' % init_number)
 
-    compute_electrics(run, init_number, omega= omega)
+    #compute_electrics(run, init_number, omega= omega)
     
     #bx = 0.0; by = 0.0; bz = 0.0
 
