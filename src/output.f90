@@ -155,7 +155,7 @@ SUBROUTINE diagnostics(diag_num)
         !Centre of the rope will be the point at which (working down) positive will go to negative
         flag1 = .false.; diag_nulls(diag_num) = 0.0_num
         do k = nx_global, 2, -1
-            if (bx_slice(k) < minval(bx_slice)/4 .and. bx_slice(k) < -1e-5) flag1 = .true.
+            if (bx_slice(k) < minval(bx_slice)/6 .and. bx_slice(k) < -1e-6) flag1 = .true.
 
             if (flag1 .and. bx_slice(k-1) > 0.0 .and. bx_slice(k) < 0.0) then
                 !Centre is between these two values
