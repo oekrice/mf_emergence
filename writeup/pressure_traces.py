@@ -168,7 +168,7 @@ class trace_fieldlines():
                 p.add_mesh(pv.Spline(line, len(line)),color='white',line_width=0.25)
 
         p.add_mesh(surface, scalars= self.plot_base, show_edges=False,cmap = 'plasma')
-        p.camera.position = (200.0,200,200.0)
+        p.camera.position = (250.0,125,200.0)
         p.camera.focal_point = (0,0,75)
         p.remove_scalar_bar()
 
@@ -296,7 +296,9 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
 
         trace_fieldlines(run, snap_num, snap_num + 1, show = 1)  #This contains the main plotting bit but NOT the preamble or postamble
 
-        p.add_title('y* = %d' % (np.array(runs)[ri]*0.05*130), color = 'Red', font_size = 12)
+        #p.add_title('y* = %d' % (np.array(runs)[ri]*0.05*130), color = 'Red', font_size = 12)
+        p.add_text('y* = %d' % (np.array(runs)[ri]*0.05*130), position = 'lower_edge', color = 'Green', font_size = 12)
+
     if show:
         p.show()
     else:

@@ -157,13 +157,15 @@ SUBROUTINE establish_grid()
     CHARACTER(LEN =64):: init_filename
     INTEGER:: ncid, vid
 
-    if (run_number < 10) then
+    if (init_number < 10) then
       write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(init_number), '.nc'
-    else if (run_number < 100) then
+    else if (init_number < 100) then
       write (init_filename, "(A12, A1, I2, A3)") './inits/init', '0', int(init_number), '.nc'
     else
       write (init_filename, "(A12, I3, A3)") './inits/init', int(init_number), '.nc'
     end if
+
+    if (proc_num == 0) print*, 'init filename', init_filename, init_number
 
     call try(nf90_open(trim(init_filename), nf90_nowrite, ncid))
 

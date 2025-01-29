@@ -272,7 +272,7 @@ def niceformat(number):
 
 
 nruns = 7
-snap_num = 50
+snap_num = 33
 
 runs = [0,2,4,6]#,3]#,5,7]
 
@@ -297,7 +297,10 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
 
         trace_fieldlines(run, snap_num, snap_num + 1, show = 1)  #This contains the main plotting bit but NOT the preamble or postamble
 
-        p.add_title('Omega = %s' % niceformat(omegas[run]), color = 'Red', font_size = 12)
+        #p.add_title('Omega = %s' % niceformat(omegas[run]), color = 'Red', font_size = 12)
+
+        p.add_text('Omega = %s' % niceformat(omegas[run]), position = 'lower_edge', color = 'Green', font_size = 12)
+
     if show:
         p.show()
     else:

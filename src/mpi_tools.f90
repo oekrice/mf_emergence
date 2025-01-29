@@ -22,7 +22,6 @@ MODULE mpi_tools
 
         call mpi_comm_size(MPI_COMM_WORLD, nprocs, ierr) !Number of processes globally.
         call mpi_comm_rank(MPI_COMM_WORLD, proc_num, ierr) !Returns the rank of current process
-        print*, 'working', nprocs
 
         ! Choose optimum division of procs that fits grid dimensions:
         ! This algorithm only appears to work for 4 or more processors, so will need some exceptions
@@ -106,9 +105,6 @@ MODULE mpi_tools
         end if
         end do
 
-        do i = 0, nprocs-1
-            if (proc_num == 0) print*, 'allranks', i, allranks(i,0:2)
-        end do
         return
     END SUBROUTINE start_mpi
 

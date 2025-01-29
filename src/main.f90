@@ -44,7 +44,7 @@ PROGRAM main
     CALL save_snap(0)
     CALL diagnostics(0)
 
-    !Adjust so magnetic inputs are precisely at timesteps
+    !Adjust so magnetic inputs are precisely at timesteps. One hopes.
 
     if (nmags > 499) then
         tmags = 0.5_num
@@ -57,6 +57,7 @@ PROGRAM main
 
     !Ensure a whole number of timesteps goes into this time
     mag_interval = int(tmags/dt) + 1
+
     !nt = (nmags-1)*(int(tmags/dt) + 1)
     dt = tmags/mag_interval
 

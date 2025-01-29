@@ -53,7 +53,7 @@ PROGRAM fltrace
     end if
 
     !Change for different plotting things
-    data_root = './sequence/'
+    !data_root = './sequence/'
 
 
     snap = int(flparameters(10))
