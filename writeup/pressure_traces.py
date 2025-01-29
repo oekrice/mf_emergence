@@ -283,7 +283,7 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
             os.mkdir('constant_pressure/%03d/' % run)
         except:
             pass
-        #Copy files across from Hamilton
+        #Copy files across from Hamilton if necessary
         #os.system('scp -r trcn27@hamilton8.dur.ac.uk:/nobackup/trcn27/mf3d0/%03d/%04d.nc ./constant_pressure/%03d/' % (run, snap_num, run))
 
 
