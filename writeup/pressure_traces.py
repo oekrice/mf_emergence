@@ -167,7 +167,7 @@ class trace_fieldlines():
             if doplot:
                 p.add_mesh(pv.Spline(line, len(line)),color='white',line_width=0.25)
 
-        p.add_mesh(surface, scalars= self.plot_base, show_edges=False,cmap = 'plasma')
+        p.add_mesh(surface, scalars= np.abs(self.plot_base), show_edges=False,cmap = 'plasma')
         p.camera.position = (250.0,125,200.0)
         p.camera.focal_point = (0,0,75)
         p.remove_scalar_bar()
@@ -272,9 +272,9 @@ def niceformat(number):
 
 
 nruns = 7
-snap_num = 75
+snap_num = 35
 
-runs = [0,2,4,6]#,3]#,5,7]
+runs = [0,3,6,9]#,3]#,5,7]
 
 print(np.array(runs)*130*0.05)
 if os.uname()[1] == 'brillouin.dur.ac.uk':
@@ -284,7 +284,7 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
         except:
             pass
         #Copy files across from Hamilton if necessary
-        #os.system('scp -r trcn27@hamilton8.dur.ac.uk:/nobackup/trcn27/mf3d0/%03d/%04d.nc ./constant_pressure/%03d/' % (run, snap_num, run))
+        os.system('scp -r trcn27@hamilton8.dur.ac.uk:/nobackup/trcn27/mf3d0/%03d/%04d.nc ./constant_pressure/%03d/' % (run, snap_num, run))
 
 
     show = False

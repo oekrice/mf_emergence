@@ -167,7 +167,7 @@ class trace_fieldlines():
             if doplot:
                 p.add_mesh(pv.Spline(line, len(line)),color='white',line_width=0.25)
 
-        p.add_mesh(surface, scalars= self.plot_base, show_edges=False,cmap = 'plasma')
+        p.add_mesh(surface, scalars= np.abs(self.plot_base), show_edges=False,cmap = 'plasma')
         p.camera.position = (200.0,100,150.0)
         p.camera.focal_point = (0,0,50)
         p.remove_scalar_bar()

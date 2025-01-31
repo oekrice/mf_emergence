@@ -57,7 +57,7 @@ MODULE grid
 
     dx = (x1 - x0)/nx;     dy = (y1 - y0)/ny;     dz = (z1 - z0)/nz
 
-    xs(0) = x0; ys(0) = ny; zs(0) = nz
+    xs(0) = x0; ys(0) = y0; zs(0) = z0
     do i = 1, nx
         xs(i) = xs(i-1) + dx
     end do

@@ -48,6 +48,8 @@ PROGRAM fltrace
         data_root = '/extra/tmp/trcn27/mf3d/'
     else if (machine_flag == 1) then
         data_root = '/nobackup/trcn27/mf3d0/'
+    else if (machine_flag == 5) then
+        data_root = '/extra/tmp/trcn27/mf3d_smart/'
     else
         data_root = '../Data/'
     end if

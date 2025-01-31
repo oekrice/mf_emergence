@@ -48,6 +48,8 @@ PROGRAM fltrace
         data_root = './constant_omega/'
     else if (machine_flag == 1) then
         data_root = './constant_pressure/'
+    else if (machine_flag == 7) then
+        data_root = './sequence/'
     else
         data_root = '../Data/'
     end if
